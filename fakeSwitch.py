@@ -14,6 +14,9 @@
 
 import socket
 import sys
+import dpkt
+import binascii
+import bitarray
 
 class fakeSwitch(object):
     """
@@ -23,8 +26,21 @@ class fakeSwitch(object):
         """
         docstring
         """
+        self.messageArray = []
+        #self.buildMessageArray()
         self.handshake()
-
+    
+    def buildMessageArray(self):
+        f = open("captures/mycap1211.pcap")
+        pcap = dpkt.pcap.Reader(f)
+        for ts, buf in pcap: #ts = timestap, buf = packet
+            eth = dpkt.ethernet.Ethernet(buf) # parse into ethernet
+            ip = eth.data #parse into ip
+            tcp = ip.data #parse into TCP
+            print("from ", tcp.sport, binascii.hexlify(tcp.data))
+            if str(tcp.dport) == "6633": #if it was outgoing TCP traffic
+                self.messageArray.append(tcp.data) #add to the outgoing message array
+    
     def handshake(self):
         host = '127.0.0.1'
         port = 6633
@@ -32,11 +48,21 @@ class fakeSwitch(object):
         print("Testing Handshake")
         s=socket.socket()
         s.connect((host,port))
-        message = "0x00, 0x00, 0x03, 0x04, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x45, 0x00, 0x00, 0x3c, 0x73, 0x82, 0x40, 0x00, 0x40, 0x06, 0xc9, 0x37, 0x7f, 0x00, 0x00, 0x01, 0x7f, 0x00, 0x00, 0x01, 0x19, 0xe9, 0x87, 0xf8, 0xa6, 0x75, 0xbc, 0x1e, 0x23, 0x62, 0xff, 0x9a, 0x80, 0x18, 0x02, 0x00, 0xfe, 0x30, 0x00, 0x00, 0x01, 0x01, 0x08, 0x0a, 0x00, 0x03, 0xcf, 0xa1, 0x00, 0x03, 0xcf, 0x9f, 0x01, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x28"
-        s.send(message.encode('ascii')) # turns string into binary
-        #Breaks here because we are not sending a proper OpenFlow message
-        msg = s.recv()
-        print(msg.decode('ascii'))
+        print("Established TCP Connection")
+        msg = s.recv(74) ## s.recv in bytes
+        print("received " + binascii.hexlify(msg))
+        print("sending  " + "0100000800000002")
+        s.send(bytearray.fromhex('0100000800000002'))
+        msg = s.recv(74) ## s.recv in bytes
+        print("received " + binascii.hexlify(msg))
+        msg = binascii.hexlify(msg)
+        #outgoing = '01050008000000'
+        #outgoing = outgoing + msg[14:15]
+        #print(outgoing)
+        print("sending  " + "010600b000000013000000000000000100000100ff000000000000c700000fff0002ae2082540a8c73312d657468320000000000000000000000000000000000000000c0000000000000000000000000fffe2ef2ce7647487331000000000000000000000000000000000001000000010000000000000000000000000000000000016e2f9006b5bb73312d657468310000000000000000000000000000000001000000c0000000000000000000000000")
+        s.send(bytearray.fromhex('010600b000000013000000000000000100000100ff000000000000c700000fff0002ae2082540a8c73312d657468320000000000000000000000000000000000000000c0000000000000000000000000fffe2ef2ce7647487331000000000000000000000000000000000001000000010000000000000000000000000000000000016e2f9006b5bb73312d657468310000000000000000000000000000000001000000c0000000000000000000000000'))
+        msg = s.recv(74) ## s.recv in bytes
+        print("received " + binascii.hexlify(msg))
 
 if __name__ == '__main__':
     """

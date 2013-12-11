@@ -15,10 +15,11 @@ file = open("switch_Packets", 'w')
 
 # receive a packet
 while True:
-    packet = s.recvfrom(65565)
+    truepacket = s.recvfrom(65565)
      
     #packet string from tuple
-    packet = packet[0]
+    
+    packet = truepacket[0]
      
     #take first 20 characters for the ip header
     ip_header = packet[0:20]
@@ -53,7 +54,8 @@ while True:
     if str(dest_port) == "6633" or str(source_port) == "6633":
         print 'Version : ' + str(version) + ' IP Header Length : ' + str(ihl) + ' TTL : ' + str(ttl) + ' Protocol : ' + str(protocol) + ' Source Address : ' + str(s_addr) + ' Destination Address : ' + str(d_addr)
         print 'Source Port : ' + str(source_port) + ' Dest Port : ' + str(dest_port) + ' Sequence Number : ' + str(sequence) + ' Acknowledgement : ' + str(acknowledgement) + ' TCP header length : ' + str(tcph_length)
-        #print ("Packet: " + packet.decode("UTF-8", errors='ignore'))
+        print(truepacket)
+        file.write(str(truepacket) + "\n")
         #Trying to print the complete packet but am having difficulties decoding it 
 
     h_size = iph_length + tcph_length * 4
@@ -62,8 +64,7 @@ while True:
     #get data from the packet
     data = packet[h_size:]
     
-    if str(dest_port) == "6633":
-        file.write("\nswitch packet\n")
-        file.write(packet)
-        print 'Data : ' + data
-        print
+ #   if str(dest_port) == "6633":
+#        file.write(str(truepacket) + "\n")
+#        print 'Data : ' + data
+#        print
