@@ -42,12 +42,12 @@ class fakeSwitch(object):
     
     def answer_initial_config_request(self):
         msg = self.s.recv(74) ## Hello Message
-        self.messageHandler(str(binascii.hexlify(msg)))
+        self.messageHandler(msg)
         msg = self.s.recv(74) ## Features Request
-        self.messageHandler(str(binascii.hexlify(msg)))
+        self.messageHandler(msg)
         msg = self.s.recv(78) ## Set Config Message (no response needed)
         msg2 = self.s.recv(146) ## Barrier Request
-        self.messageHandler(str(binascii.hexlify(msg2))) ## Barrier Reply
+        self.messageHandler(msg2) ## Barrier Reply
     
     def echo_loop(self):
         while(1):
@@ -57,9 +57,10 @@ class fakeSwitch(object):
             msg = self.s.recv(74)
             print("Received Echo Request")
 
-    def messageHandler(self, message):
+    def messageHandler(self, msg):
+        message = str(binascii.hexlify(msg))
         #print(message, len(message))
-        header = ofprotocol.deserializeHeader(message)
+        header = ofprotocol.deserializeHeader(msg)
         (version, msgtype, length, xid) = header
         print 'messageHandler: deserializeHeader: ' + header
 
