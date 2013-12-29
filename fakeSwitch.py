@@ -61,7 +61,7 @@ class fakeSwitch(object):
         message = str(binascii.hexlify(msg))
         #print(message, len(message))
         print msg, len(msg)
-        header = ofprotocol.deserializeHeader(msg)
+        header = ofprotocol.deserializeHeader(msg[:8])
         (version, msgtype, length, xid) = header
         print 'messageHandler: deserializeHeader: ' + str(header)
 
