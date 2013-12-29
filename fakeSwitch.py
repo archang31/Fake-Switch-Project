@@ -39,15 +39,33 @@ class fakeSwitch(object):
         self.s=socket.socket()
         self.s.connect((host,port))
         print("Established TCP Connection")
+
+    # Using shiny new ofprotocol.py
+    def genericMessageHandler(self, wholePacket):
+        (version, msgtype, length, xid) = deserializeHeader(wholePacket[:8])
+        print 'deserializePacket: msgtype = ' + messageTypeToString(msgtype) + '; length = ' + str(length)
+
+        if msgtype is ofprotocol.messageStringToType('HELLO'):
+            self.s.send(ofprotocol.getHello(xid))
+        elif msgtype is ofprotocol.messageStringToType('FEATURES_REQUEST'):
+            self.s.send(getFeaturesReply(xid))
+        elif msgtype is ofprotocol.messageStringToType('ECHO_REQUEST'):
+            echo_body = wholePacket[8:]
+            echo_reply_header = ofprotocol.getHeader(ofprotocol.messageStringToType['ECHO_REPLY'],
+                length, xid)
+            print echo_reply_header.join(echo_body)
+            self.s.send(echo_reply_header.join(echo_body))
     
     def answer_initial_config_request(self):
         msg = self.s.recv(74) ## Hello Message
-        self.messageHandler(msg)
+        self.genericMessageHandler(msg)
+        #self.messageHandler(msg)
         msg = self.s.recv(74) ## Features Request
-        self.messageHandler(msg)
+        self.genericMessageHandler(msg)
+        #self.messageHandler(msg)
         msg = self.s.recv(78) ## Set Config Message (no response needed)
-        msg2 = self.s.recv(146) ## Barrier Request
-        self.messageHandler(msg2) ## Barrier Reply
+        # msg2 = self.s.recv(146) ## Barrier Request
+        # self.messageHandler(msg2) ## Barrier Reply
     
     def echo_loop(self):
         while(1):
@@ -61,7 +79,7 @@ class fakeSwitch(object):
         message = str(binascii.hexlify(msg))
         #print(message, len(message))
         print msg, len(msg)
-        header = ofprotocol.deserializeHeader(msg)
+        header = ofprotocol.deserializeHeader(msg[:8])
         (version, msgtype, length, xid) = header
         print 'messageHandler: deserializeHeader: ' + str(header)
 

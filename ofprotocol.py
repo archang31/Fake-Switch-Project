@@ -11,7 +11,10 @@ def messageTypeToString(typeint):
 def messageStringToType(typestr):
 	return message_type_str_indexed[typestr]
 
-def getHeader(msgtype, length):
+def isHelloType(type):
+	return type is message_type_str_indexed['HELLO']
+
+def getHeader(msgtype, length, xid):
 	'''Header on all OpenFlow packets.
 
 	struct ofp_header {
@@ -24,7 +27,6 @@ def getHeader(msgtype, length):
 
 	'''
 	version = 0x01
-	xid = 0x01
 	packet = struct.pack('!BBHI', version, msgtype, length, xid)
 	# packet = struct.pack('<IHBB', xid, length, msgtype, version)
 	#print len(packet)
@@ -35,7 +37,30 @@ def deserializeHeader(header):
 	(version, msgtype, length, xid) = packet
 	return packet
 
-def getHello():
-	helloType = 0x00
+def getHello(xid):
+	helloType = message_type_str_indexed['HELLO']
 	headerLen = 0x08
-	return getHeader(helloType, headerLen)
+	return getHeader(helloType, headerLen, xid)
+
+def getFeaturesReply(xid):
+	'''/* Switch features. */
+
+	struct ofp_switch_features {
+		struct ofp_header header;
+		uint64_t datapath_id; /* Datapath unique ID. The lower 48-bits are for a MAC address, while the upper 16-bits are implementer-defined. */
+		uint32_t n_buffers; /* Max packets buffered at once. */
+		uint8_t n_tables; /* Number of tables supported by datapath. */
+		uint8_t pad[3]; /* Align to 64-bits. */
+
+		/* Features. */
+		uint32_t capabilities; /* Bitmap of support "ofp_capabilities". */
+		uint32_t actions; /* Bitmap of supported "ofp_action_type"s. */
+
+		/* Port info.*/
+		struct ofp_phy_port ports[0]; /* Port definitions. The number of ports is inferred from the length field in the header. */
+	};
+
+	OFP_ASSERT(sizeof(struct ofp_switch_features) == 32);'''
+
+	# temporarily just hardcode it
+	return bytearray.fromhex('010600b000000013000000000000000100000100ff000000000000c700000fff0002ae2082540a8c73312d657468320000000000000000000000000000000000000000c0000000000000000000000000fffe2ef2ce7647487331000000000000000000000000000000000001000000010000000000000000000000000000000000016e2f9006b5bb73312d657468310000000000000000000000000000000001000000c0000000000000000000000000')
