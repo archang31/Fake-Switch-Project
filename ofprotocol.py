@@ -12,16 +12,17 @@ def getHeader(msgtype, length):
 	OFP_ASSERT(sizeof(struct ofp_header) == 8);
 
 	'''
-	version = 0x02
+	version = 0x01
 	xid = 0x01
-	# packet = struct.pack('!BBHI', version, msgtype, length, xid)
-	packet = struct.pack('<IHBB', xid, length, msgtype, version)
+	packet = struct.pack('!BBHI', version, msgtype, length, xid)
+	# packet = struct.pack('<IHBB', xid, length, msgtype, version)
 	#print len(packet)
 	return packet
 
 def deserializeHeader(header):
-	packet = struct.unpack('<IHBB', header)
-	print packet
+	packet = struct.unpack('!BBHI', header)
+	(version, msgtype, length, xid) = packet
+	return packet
 
 def getHello():
 	helloType = 0x00

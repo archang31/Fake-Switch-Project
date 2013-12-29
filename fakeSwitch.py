@@ -59,7 +59,10 @@ class fakeSwitch(object):
 
     def messageHandler(self, message):
         #print(message, len(message))
-        ofprotocol.deserializeHeader(message)
+        header = ofprotocol.deserializeHeader(message)
+        (version, msgtype, length, xid) = header
+        print 'messageHandler: deserializeHeader: ' + header
+
         if len(message) == 16: #8B
             if message[0:12] == '010000080000':
                 print("Received Hello SM")
