@@ -19,6 +19,10 @@ def getHeader(msgtype, length):
 	print len(packet)
 	return packet
 
+def deserializeHeader(header):
+	packet = struct.unpack('<IHBB', header)
+	print packet
+
 def getHello():
 	helloType = 0x00
 	headerLen = 0x08
