@@ -18,6 +18,7 @@ import dpkt
 import binascii
 import bitarray
 import time
+import ofprotocol
 
 class fakeSwitch(object):
     """
@@ -61,7 +62,8 @@ class fakeSwitch(object):
         if len(message) == 16: #8B
             if message[0:12] == '010000080000':
                 print("Received Hello SM")
-                self.s.send(bytearray.fromhex('0100000800000002'))
+                self.s.send(ofprotocol.getHello())
+                #self.s.send(bytearray.fromhex('0100000800000002'))
                 print("Sending  Hello SM (8B)")
             elif message[0:12] == '010500080000':
                 print("Received Features Request (SM)")

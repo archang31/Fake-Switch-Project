@@ -16,7 +16,7 @@ def getHeader(msgtype, length):
 	xid = 0x01
 	# packet = struct.pack('!BBHI', version, msgtype, length, xid)
 	packet = struct.pack('<IHBB', xid, length, msgtype, version)
-	print len(packet)
+	#print len(packet)
 	return packet
 
 def deserializeHeader(header):
