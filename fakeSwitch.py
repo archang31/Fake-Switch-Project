@@ -60,9 +60,10 @@ class fakeSwitch(object):
     def messageHandler(self, msg):
         message = str(binascii.hexlify(msg))
         #print(message, len(message))
+        print msg, len(msg)
         header = ofprotocol.deserializeHeader(msg)
         (version, msgtype, length, xid) = header
-        print 'messageHandler: deserializeHeader: ' + header
+        print 'messageHandler: deserializeHeader: ' + str(header)
 
         if len(message) == 16: #8B
             if message[0:12] == '010000080000':
