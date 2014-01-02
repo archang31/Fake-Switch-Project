@@ -49,7 +49,7 @@ class fakeSwitch(object):
         try:
             (version, msgtype, length, xid) = deserializeHeader(header)
             print 'eatMessage: msgtype = ' + messageTypeToString(msgtype) + '; length = ' + str(length)
-                    except:
+        except:
             print 'Error processing header: ' + repr(header)
 
     # Using shiny new ofprotocol.py
