@@ -45,7 +45,7 @@ class fakeSwitch(object):
         print("Established TCP Connection")
 
     def eatMessage(self):
-        header = self.s.recv(73)
+        header = self.s.recv(74)
         try:
             (version, msgtype, length, xid) = deserializeHeader(header)
             print 'Original header: ' + repr(header)
