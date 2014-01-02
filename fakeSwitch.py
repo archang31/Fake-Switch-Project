@@ -47,12 +47,10 @@ class fakeSwitch(object):
   def eatMessage(self):
     header = self.s.recv(8)
     print repr(header)
-    #try:
     (version, msgtype, length, xid) = ofprotocol.deserializeHeader(header[:8])
-    print 'deserialized'
     print 'eatMessage: msgtype = ' + ofprotocol.messageTypeToString(msgtype) + '; length = ' + str(length)
-    #except:
-    #  print 'Error processing header: ' + repr(header)
+    if (length > 8):
+      body = self.s.recv(length - 8)
 
   # Using shiny new ofprotocol.py
   def genericMessageHandler(self, wholePacket):
