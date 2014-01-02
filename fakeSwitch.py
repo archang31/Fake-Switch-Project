@@ -29,12 +29,12 @@ class fakeSwitch(object):
     docstring
     """
     self.open_TCP_Connection()
-    self.answer_initial_config_request()
+    #self.answer_initial_config_request()
     #self.request_switch_neighbors() Not needed for setup
     #self.echo_loop()
     while True:
       print 'In loop'
-      #self.eatMessage()
+      self.eatMessage()
       time.sleep(2)
 
   def open_TCP_Connection(self):
@@ -45,14 +45,14 @@ class fakeSwitch(object):
     print("Established TCP Connection")
 
   def eatMessage(self):
-    header = self.s.recv(74)
+    header = self.s.recv(8)
     print repr(header)
-    try:
-      #(version, msgtype, length, xid) = deserializeHeader(header[:8])
-      print 'Original header: ' + repr(header)
-      print 'eatMessage: msgtype = ' + messageTypeToString(msgtype) + '; length = ' + str(length)
-    except:
-      print 'Error processing header: ' + repr(header)
+    #try:
+    (version, msgtype, length, xid) = ofprotocol.deserializeHeader(header[:8])
+    print 'deserialized'
+    print 'eatMessage: msgtype = ' + ofprotocol.messageTypeToString(msgtype) + '; length = ' + str(length)
+    #except:
+    #  print 'Error processing header: ' + repr(header)
 
   # Using shiny new ofprotocol.py
   def genericMessageHandler(self, wholePacket):
