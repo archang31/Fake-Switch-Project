@@ -54,13 +54,13 @@ class fakeSwitch(object):
 
     # Using shiny new ofprotocol.py
     def genericMessageHandler(self, wholePacket):
-        (version, msgtype, length, xid) = deserializeHeader(wholePacket[:8])
-        print 'deserializePacket: msgtype = ' + messageTypeToString(msgtype) + '; length = ' + str(length)
+        (version, msgtype, length, xid) = ofprotocol.deserializeHeader(wholePacket[:8])
+        print 'deserializePacket: msgtype = ' + ofprotocol.messageTypeToString(msgtype) + '; length = ' + str(length)
 
         if msgtype is ofprotocol.messageStringToType('HELLO'):
             self.s.send(ofprotocol.getHello(xid))
         elif msgtype is ofprotocol.messageStringToType('FEATURES_REQUEST'):
-            self.s.send(getFeaturesReply(xid))
+            self.s.send(ofprotocol.getFeaturesReply(xid))
         elif msgtype is ofprotocol.messageStringToType('ECHO_REQUEST'):
             echo_body = wholePacket[8:]
             echo_reply_header = ofprotocol.getHeader(ofprotocol.messageStringToType['ECHO_REPLY'],
