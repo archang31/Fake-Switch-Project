@@ -2,7 +2,11 @@ import struct
 
 message_type_str_indexed = {'HELLO':0, 'ERROR':1, 'ECHO_REQUEST':2, 'ECHO_REPLY':3,
 	'VENDOR':4, 'FEATURES_REQUEST':5, 'FEATURES_REPLY':6,
-	'GET_CONFIG_REQUEST':7, 'GET_CONFIG_REPLY':8 }
+	'GET_CONFIG_REQUEST':7, 'GET_CONFIG_REPLY':8,
+	'SET_CONFIG': 9, 'PACKET_IN': 10, 'FLOW_REMOVED': 11, 'PORT_STATUS':12,
+	'PACKET_OUT':13, 'FLOW_MOD': 14, 'PORT_MOD': 15, 'STATS_REQUEST':16,
+	'STATS_REPLY':17, 'BARRIER_REQUEST':18, 'BARRIER_REPLY':19}
+	
 message_type_int_indexed = {v:k for k, v in message_type_str_indexed.items()}
 
 def messageTypeToString(typeint):
