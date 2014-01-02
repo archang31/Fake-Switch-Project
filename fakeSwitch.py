@@ -46,6 +46,7 @@ class fakeSwitch(object):
 
   def eatMessage(self):
     header = self.s.recv(74)
+    print repr(header)
     try:
       #(version, msgtype, length, xid) = deserializeHeader(header[:8])
       print 'Original header: ' + repr(header)
@@ -55,6 +56,7 @@ class fakeSwitch(object):
 
   # Using shiny new ofprotocol.py
   def genericMessageHandler(self, wholePacket):
+    print repr(wholePacket)
     (version, msgtype, length, xid) = ofprotocol.deserializeHeader(wholePacket[:8])
     print 'deserializePacket: msgtype = ' + ofprotocol.messageTypeToString(msgtype) + '; length = ' + str(length)
 
@@ -109,7 +111,7 @@ class fakeSwitch(object):
         print("Received Features Request (SM)")
         self.s.send(bytearray.fromhex('010600b000000013000000000000000100000100ff000000000000c700000fff0002ae2082540a8c73312d657468320000000000000000000000000000000000000000c0000000000000000000000000fffe2ef2ce7647487331000000000000000000000000000000000001000000010000000000000000000000000000000000016e2f9006b5bb73312d657468310000000000000000000000000000000001000000c0000000000000000000000000'))
         print("Sending  Features Reply (176B)")
-        
+
       else:
         print("ERROR: IN ELSE FOR LENGTH 16")
 
