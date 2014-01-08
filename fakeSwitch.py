@@ -30,12 +30,16 @@ class fakeSwitch(threading.Thread):
     """
     docstring
     """
+    self.sleeptime = 0
     self.open_TCP_Connection()
     self.answer_initial_config_request() # method handles switch initial requests
     #self.request_switch_neighbors() Not needed for setup
 
   def run(self):
     self.echo_loop() # method takes care of echo requests for keep alives
+
+  def setSleep(self, time):
+    self.sleeptime = time
 
   def open_TCP_Connection(self):
     host = '127.0.0.1'
@@ -101,9 +105,9 @@ class fakeSwitch(threading.Thread):
   
   def echo_loop(self):
     while(1):
-      time.sleep(1)
+      time.sleep(self.sleeptime)
       self.s.send(bytearray.fromhex('0102000800000000'))
-      print("Sending Echo Reply")
+      #print("Sending Echo Reply")
       self.eatMessage()
 
   def messageHandler(self, msg):
@@ -186,5 +190,6 @@ if __name__ == '__main__':
   Create our fake switch
   """
   thread1 = fakeSwitch()
+  thread1.setSleep(2)
   thread1.start()
 
