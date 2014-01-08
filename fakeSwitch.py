@@ -19,23 +19,23 @@ import binascii
 import bitarray
 import time
 import ofprotocol
+import threading
 
-class fakeSwitch(object):
+class fakeSwitch(threading.Thread):
   """
   docstring
   """        
-  def __init__(self):
+  def __init__(self): #now the initialization part of each thread
+    threading.Thread.__init__(self) 
     """
     docstring
     """
     self.open_TCP_Connection()
-    #self.answer_initial_config_request()
+    self.answer_initial_config_request() # method handles switch initial requests
     #self.request_switch_neighbors() Not needed for setup
-    #self.echo_loop()
-    while True:
-      print 'In loop'
-      self.eatMessage()
-      time.sleep(2)
+
+  def run(self):
+    self.echo_loop() # method takes care of echo requests for keep alives
 
   def open_TCP_Connection(self):
     host = '127.0.0.1'
@@ -52,6 +52,8 @@ class fakeSwitch(object):
 
     if (length > 8):
       body = self.s.recv(length - 8)
+      print(str(binascii.hexlify(body)))
+      bodylen = str(binascii.hexlify(body)).__len__() #I bet there is an inherent way to call this
 
     if msgtype is ofprotocol.messageStringToType('HELLO'):
       self.s.send(ofprotocol.getHello(xid))
@@ -65,26 +67,44 @@ class fakeSwitch(object):
       print echo_reply_header.join(body)
       self.s.send(echo_reply_header.join(body))
 
+    elif msgtype is ofprotocol.messageStringToType('SET_CONFIG'):
+      print("set config") #no response needed, just need to eat additional message
+
+    elif msgtype is ofprotocol.messageStringToType('BARRIER_REQUEST'):
+      reply = '011300080000' + body[bodylen-4:bodylen] #last 4 digits need to be the same from the barrier request
+      self.s.send(bytearray.fromhex(reply))    
+
 
   def answer_initial_config_request(self):
-    msg = self.s.recv(74) ## Hello Message
-    self.genericMessageHandler(msg)
+    self.eatMessage() ## Hello Message
+    self.eatMessage() ## Features Request Message
+    self.eatMessage() ## Set Config Message (no response needed)
+    #self.eatMessage() ## Flow Mod Request
+    #self.eatMessage() ## Barrier Request
+    #not sure why I could not get your barrier request to be right so I just went back to using my default.
+    #your eatMessage actually makes it look like its a Flow Mod Request with lenght 72 followed by a Barrier Request when,
+    #according to wireshark, its just a barrier Request after the set config message.
+    msg2 = self.s.recv(146) ## Barrier Request
+    self.messageHandler(msg2) ## Barrier Reply
+
+    
+ #   msg = self.s.recv(74) ## Hello Message
+ #   self.genericMessageHandler(msg)
+ 
     #self.messageHandler(msg)
-    msg = self.s.recv(74) ## Features Request
-    self.genericMessageHandler(msg)
+ #   msg = self.s.recv(74) ## Features Request
+ #   self.genericMessageHandler(msg)
     #self.messageHandler(msg)
-    msg = self.s.recv(78) ## Set Config Message (no response needed)
+ #   msg = self.s.recv(78) ## Set Config Message (no response needed)
     # msg2 = self.s.recv(146) ## Barrier Request
     # self.messageHandler(msg2) ## Barrier Reply
   
   def echo_loop(self):
     while(1):
-      time.sleep(2)
-      #self.s.send(bytearray.fromhex('0102000800000000'))
-      msg = self.s.recv(74)
-      print("Received Echo Request")
-      this.genericMessageHandler(msg)
+      time.sleep(1)
+      self.s.send(bytearray.fromhex('0102000800000000'))
       print("Sending Echo Reply")
+      self.eatMessage()
 
   def messageHandler(self, msg):
     message = str(binascii.hexlify(msg))
@@ -165,4 +185,6 @@ if __name__ == '__main__':
   """
   Create our fake switch
   """
-  fakeSwitch()
+  thread1 = fakeSwitch()
+  thread1.start()
+
