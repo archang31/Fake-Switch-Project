@@ -1,0 +1,69 @@
+\documentclass[12pt, letterpaper, twoside]{article}
+%\usepackage{epstopdf}
+%\usepackage[pdftex]{graphicx}
+\usepackage[left=.8in,top=.8in,right=.8in,bottom=.8in,nohead,nofoot,columnsep=20pt]{geometry}
+\usepackage{setspace}
+\usepackage[small,compact]{titlesec}
+\usepackage{subfigure}
+\usepackage{multicol}
+%\usepackage{multirow}
+\usepackage{textcomp}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage[hyphens]{url}
+\usepackage{float}
+\usepackage{fancyhdr}
+\setlength{\headheight}{14.5pt}
+\setlength{\footskip}{11pt}
+\pagestyle{fancy}
+\lhead{}
+\chead{}
+\rhead{}
+\rfoot{}
+
+\title{Title goes in report.tex}
+\author{Bonnie Eisenman, Michael Kranch and Anna Kornfeld Simpson}
+\date{COS 597E Software Defined Networks \\ 14 January 2014}
+
+\begin{document}
+
+\maketitle
+
+\begin{spacing}{1.0}
+
+\begin{abstract}
+Here's some space for our abstract, which also is in report.tex ... compile this with make in the report directory.  The makefile runs the latex compiler pdflatex 3 times in order to get the references and citations correct; if it says you have undefined references in the output at the end scroll up in the compiler output to find them!
+\end{abstract}
+
+\begin{multicols}{2}
+
+\section{Introduction}
+We probably want to introduce things, right now that's in report.tex.  We might want to cite something in the introduction, we can do that using \begin{verbatim}{\cite{refname}\end{verbatim} where the \emph{refname} is defined in bibliography.tex in the \begin{verbatim}{\bibitem}\end{verbatim} command.  For example citing dpkt looks like this: \cite{dpkt}.
+
+\section{Related Work}
+\label{related}
+The related work might be long, so let's put it in a separate file, related.tex
+\input{related}
+
+\section{Faking a Switch}
+\label{fake}
+I'm making up sections and order... there's a file called fake.tex where we can write about faking a switch. The verbatim environment is useful for preformatted text - there's an example in the introduction!
+\input{fake}
+
+\section{Disrupting an SDN with a Fake Switch}
+\label{attacks}
+There's a file called attacks.tex for describing our various attacks; we could combine the results of the attacks we implemented here, or put them separately.
+\input{attacks}
+
+\section{Conclusion}
+The conclusion might be short enough to be in report.tex - we can add other sections before it as necessary, and the bibliography (in bibliography.tex) will follow.
+
+
+% Imports the bibliography, don't remove
+\input{bibliography}
+
+\end{multicols}
+
+\end{spacing}
+
+\end{document}
