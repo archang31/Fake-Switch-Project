@@ -6,7 +6,7 @@ message_type_str_indexed = {'HELLO':0, 'ERROR':1, 'ECHO_REQUEST':2, 'ECHO_REPLY'
 	'SET_CONFIG': 9, 'PACKET_IN': 10, 'FLOW_REMOVED': 11, 'PORT_STATUS':12,
 	'PACKET_OUT':13, 'FLOW_MOD': 14, 'PORT_MOD': 15, 'STATS_REQUEST':16,
 	'STATS_REPLY':17, 'BARRIER_REQUEST':18, 'BARRIER_REPLY':19}
-	
+
 message_type_int_indexed = {v:k for k, v in message_type_str_indexed.items()}
 
 def messageTypeToString(typeint):
@@ -46,7 +46,7 @@ def getHello(xid):
 	headerLen = 0x08
 	return getHeader(helloType, headerLen, xid)
 
-def getFeaturesReply(xid):
+def getFeaturesReply(datapath_id, n_buffers, n_tbles, capabilities, actions):
 	'''/* Switch features. */
 
 	struct ofp_switch_features {
@@ -66,5 +66,28 @@ def getFeaturesReply(xid):
 
 	OFP_ASSERT(sizeof(struct ofp_switch_features) == 32);'''
 
+	packet = struct.pack('!QIBxxxII', datapath_id, n_bufers, 
+		n_tables, pad, pad, pad, capabilities, actions)
 	# temporarily just hardcode it
 	return bytearray.fromhex('010600b000000013000000000000000100000100ff000000000000c700000fff0002ae2082540a8c73312d657468320000000000000000000000000000000000000000c0000000000000000000000000fffe2ef2ce7647487331000000000000000000000000000000000001000000010000000000000000000000000000000000016e2f9006b5bb73312d657468310000000000000000000000000000000001000000c0000000000000000000000000')
+
+def getPortStruct(port_no, mac_addr, name, config, state, curr, advertised, supported, peer):
+	'''
+	/* Description of a physical port */
+	struct ofp_phy_port {
+    	uint16_t port_no;
+	    uint8_t hw_addr[OFP_ETH_ALEN];
+	    char name[OFP_MAX_PORT_NAME_LEN]; /* Null-terminated */
+	    uint32_t config;        /* Bitmap of OFPPC_* flags. */
+	    uint32_t state;         /* Bitmap of OFPPS_* flags. */
+
+		/* Bitmaps of OFPPF_* that describe features.  All bits zeroed if
+		 * unsupported or unavailable. */
+		uint32_t curr; 	/* Current features. */
+		uint32_t advertised; /* Features being advertised by the port. */
+		uint32_t supported; /* Features supported by the port. */
+		uint32_t peer; /* Features advertised by peer. */
+	};
+	OFP_ASSERT(sizeof(struct ofp_phy_port) == 48);
+	'''
+	return struct.pack('!H')

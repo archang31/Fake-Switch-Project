@@ -55,15 +55,18 @@ class fakeSwitch(object):
 
     if msgtype is ofprotocol.messageStringToType('HELLO'):
       self.s.send(ofprotocol.getHello(xid))
+      print 'sent hello reply'
 
     elif msgtype is ofprotocol.messageStringToType('FEATURES_REQUEST'):
       self.s.send(ofprotocol.getFeaturesReply(xid))
+      print 'sent features reply'
 
     elif msgtype is ofprotocol.messageStringToType('ECHO_REQUEST'):
       echo_reply_header = ofprotocol.getHeader(ofprotocol.messageStringToType['ECHO_REPLY'],
           length, xid)
       print echo_reply_header.join(body)
       self.s.send(echo_reply_header.join(body))
+      print 'sent echo reply'
 
 
   def answer_initial_config_request(self):
