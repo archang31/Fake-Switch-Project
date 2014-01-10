@@ -40,12 +40,20 @@ Here's some space for our abstract, which also is in report.tex ... compile this
 \section{Introduction}
 We probably want to introduce things, right now that's in report.tex.  We might want to cite something in the introduction, we can do that using \begin{verbatim}{\cite{refname}\end{verbatim} where the \emph{refname} is defined in bibliography.tex in the \begin{verbatim}{\bibitem}\end{verbatim} command.  For example citing dpkt looks like this: \cite{dpkt}.
 
-\section{Related Work}
-\label{related}
-The related work might be long, so let's put it in a separate file, related.tex
-\input{related}
+\section{Background}
 
-\section{Faking a Switch}
+\subsection{Software Defined Networking}
+
+\subsection{Security in SDN}
+
+\section{Creating a Software Defined Switch}
+
+\subsection{OpenFlow Protocol}
+
+\subsection{Initiating a Connection to a Controller}
+
+\subsection{Push verses Pull Connections}
+
 \label{fake}
 I'm making up sections and order... there's a file called fake.tex where we can write about faking a switch. The verbatim environment is useful for preformatted text - there's an example in the introduction!
 \input{fake}
@@ -54,6 +62,11 @@ I'm making up sections and order... there's a file called fake.tex where we can 
 \label{attacks}
 There's a file called attacks.tex for describing our various attacks; we could combine the results of the attacks we implemented here, or put them separately.
 \input{attacks}
+
+\section{Related Work}
+\label{related}
+The related work might be long, so let's put it in a separate file, related.tex
+\input{related}
 
 \section{Conclusion}
 The conclusion might be short enough to be in report.tex - we can add other sections before it as necessary, and the bibliography (in bibliography.tex) will follow.
