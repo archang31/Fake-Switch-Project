@@ -107,10 +107,22 @@ class fakeSwitch(threading.Thread):
     #not sure why I could not get your barrier request to be right so I just went back to using my default.
     #your eatMessage actually makes it look like its a Flow Mod Request with lenght 72 followed by a Barrier Request when,
     #according to wireshark, its just a barrier Request after the set config message.
+
+    '''Weird thing: setup shows a length-80 msg contained FlowMod followed by Barier. This is causing problems.'''
     #msg2 = self.s.recv(146) ## Barrier Request
     #this message is not needed for a ryu controller
     #self.messageHandler(msg2) ## Barrier Reply
+    next_msg = self.s.recv(80)
+    (version, msgtype, length, xid) = ofprotocol.deserializeHeader(next_msg[:8])
+    print 'init: msgtype = ' + ofprotocol.messageTypeToString(msgtype) + '; length = ' + str(length)
+    body = next_msg[8:]
+    reply = '011300080000'
+    if body:
+      reply = reply + body[-4:] #last 4 digits need to be the same from the barrier request
+    self.s.send(bytearray.fromhex(reply))
+    
     self.eatMessage() #Get Config Request
+
     #self.s.send(bytearray.fromhex('0108000c010b5e800000ffff')) #Get Config Reply
     #real switch reply Header = 01 08 00 0c
     #second byte is "transaction ID "00 b6  8c 98 ''    00 00 ff ff 
