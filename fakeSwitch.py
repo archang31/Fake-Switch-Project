@@ -85,7 +85,9 @@ class fakeSwitch(threading.Thread):
       self.s.send(bytearray.fromhex(msg))
 
     elif msgtype is ofprotocol.messageStringToType('BARRIER_REQUEST'):
-      reply = '011300080000' + body[bodylen-4:bodylen] #last 4 digits need to be the same from the barrier request
+      reply = '011300080000'
+      if body:
+        reply = reply + body[bodylen-4:bodylen] #last 4 digits need to be the same from the barrier request
       self.s.send(bytearray.fromhex(reply))
 
     elif msgtype is ofprotocol.messageStringToType('FLOW_MOD'):
