@@ -60,6 +60,7 @@ class fakeSwitch():
     if (length > 8):
       body = self.s.recv(length - 8)
       bodylen = len(str(binascii.hexlify(body)))
+      print body
 
     reply = None
 
