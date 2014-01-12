@@ -63,9 +63,9 @@ class fakeSwitch(threading.Thread):
 
   def eatMessage(self):
     header = self.s.recv(8)
-    print repr(header)
+    #print repr(header)
     (version, msgtype, length, xid) = ofprotocol.deserializeHeader(header[:8])
-    print 'eatMessage: msgtype = ' + ofprotocol.messageTypeToString(msgtype) + '; length = ' + str(length)
+    #print 'eatMessage: msgtype = ' + ofprotocol.messageTypeToString(msgtype) + '; length = ' + str(length)
 
     if (length > 8):
       body = self.s.recv(length - 8)
@@ -107,9 +107,9 @@ class fakeSwitch(threading.Thread):
     #not sure why I could not get your barrier request to be right so I just went back to using my default.
     #your eatMessage actually makes it look like its a Flow Mod Request with lenght 72 followed by a Barrier Request when,
     #according to wireshark, its just a barrier Request after the set config message.
-    #msg2 = self.s.recv(146) ## Barrier Request
+    msg2 = self.s.recv(146) ## Barrier Request
     #this message is not needed for a ryu controller
-    #self.messageHandler(msg2) ## Barrier Reply
+    self.messageHandler(msg2) ## Barrier Reply
     #self.eatMessage() #Get Config Request
     #self.s.send(bytearray.fromhex('0108000c010b5e800000ffff')) #Get Config Reply
     #real switch reply Header = 01 08 00 0c
@@ -138,7 +138,7 @@ class fakeSwitch(threading.Thread):
   def eatEcho(self):
     while(1):
       self.eatMessage()
-      print("in eat Echo")
+      #print("in eat Echo")
 
   def packetInTest(self):
     while(1):
@@ -238,5 +238,4 @@ if __name__ == '__main__':
   thread2 = fakeSwitch()
   thread2.setConnection(s)
   thread2.setOption(2)
-  thread2.start()
-
+  #thread2.start()
