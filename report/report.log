@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  12 JAN 2014 11:46
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  12 JAN 2014 13:58
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -517,7 +517,12 @@ Missing character: There is no œ in font cmr12!
 Missing character: There is no â in font cmr12!
 Missing character: There is no € in font cmr12!
 Missing character: There is no  in font cmr12!
-) (./related.tex) [3] (./bibliography.tex
+
+
+Package multicol Warning: I moved some lines to the next page.
+(multicol)                Footnotes on page 3 might be wrong on input line 37.
+
+[3]) (./related.tex) (./bibliography.tex
 Underfull \hbox (badness 10000) in paragraph at lines 5--6
 []\OT1/cmr/m/n/12 Cisco. ``Mul-ti-ple Vul-ner-a-bil-i-ties
  []
@@ -602,7 +607,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 21--22
 Here is how much of TeX's memory you used:
  4410 strings out of 493315
  62941 string characters out of 6137904
- 149204 words of memory out of 5000000
+ 150204 words of memory out of 5000000
  7781 multiletter control sequences out of 15000+600000
  10678 words of font info for 39 fonts, out of 8000000 for 9000
  957 hyphenation exceptions out of 8191
@@ -618,7 +623,7 @@ cm/cmr17.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm
 r8.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmti1
 2.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12
 .pfb>
-Output written on report.pdf (4 pages, 138132 bytes).
+Output written on report.pdf (4 pages, 138379 bytes).
 PDF statistics:
  58 PDF objects out of 1000 (max. 8388607)
  40 compressed objects within 1 object stream

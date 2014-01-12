@@ -27,10 +27,19 @@ if __name__ == '__main__':
   """
   n = 0
   while n < 10:
-      thread = fakeSwitch.fakeSwitch()
-      thread.setSleep(0)
-      thread.setOption(0)
-      thread.start()
-      print("Starting Thread " + str(n))
-      n = n + 1
+    host = '127.0.0.1'
+    port = 6633
+    s=socket.socket()
+    s.connect((host,port))
+    thread1 = fakeSwitch.fakeSwitch()
+    thread1.setConnection(s)
+    thread1.answer_initial_config_request() 
+    thread1.setOption(0)
+    thread1.start()
+    thread2 = fakeSwitch.fakeSwitch()
+    thread2.setConnection(s)
+    thread2.setOption(2)
+    thread2.start()
+    print("Starting Thread " + str(n))
+    n = n + 1
   print("Done Loop")
