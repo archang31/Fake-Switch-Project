@@ -56,7 +56,7 @@ class fakeSwitch(threading.Thread):
 
   def eatMessage(self):
     header = self.s.recv(8)
-    print repr(header)
+    print(repr(header))
 
     if len(header) < 8:
       return
@@ -116,7 +116,8 @@ class fakeSwitch(threading.Thread):
     (version, msgtype, length, xid) = ofprotocol.deserializeHeader(next_msg[:8])
     print 'init: msgtype = ' + ofprotocol.messageTypeToString(msgtype) + '; length = ' + str(length)
     print 'xid: ', xid
-    barrier_reply = getHeader(messageStringToType('BARRIER_REPLY', 8, xid)
+    xid += 1
+    barrier_reply = ofprotocol.getHeader(ofprotocol.messageStringToType('BARRIER_REPLY'), 8, xid)
     print repr(barrier_reply)
     body = next_msg[8:]
     self.s.send(barrier_reply)
