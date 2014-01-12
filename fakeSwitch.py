@@ -115,11 +115,11 @@ class fakeSwitch(threading.Thread):
     next_msg = self.s.recv(80)
     (version, msgtype, length, xid) = ofprotocol.deserializeHeader(next_msg[:8])
     print 'init: msgtype = ' + ofprotocol.messageTypeToString(msgtype) + '; length = ' + str(length)
+    print 'xid: ', xid
+    barrier_reply = getHeader(messageStringToType('BARRIER_REPLY', 8, xid)
+    print repr(barrier_reply)
     body = next_msg[8:]
-    reply = '011300080000'
-    if body:
-      reply = reply + body[-4:] #last 4 digits need to be the same from the barrier request
-    self.s.send(bytearray.fromhex(reply))
+    self.s.send(barrier_reply)
     
     self.eatMessage() #Get Config Request
 
