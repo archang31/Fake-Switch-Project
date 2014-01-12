@@ -60,6 +60,7 @@ class fakeSwitch(threading.Thread):
     (version, msgtype, length, xid) = ofprotocol.deserializeHeader(header[:8])
     print 'eatMessage: msgtype = ' + ofprotocol.messageTypeToString(msgtype) + '; length = ' + str(length)
 
+    body = None
     if (length > 8):
       body = self.s.recv(length - 8)
       #print(str(binascii.hexlify(body)))
