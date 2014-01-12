@@ -33,7 +33,11 @@ class fakeSwitch():
     self.controller_connected = False
     self.sleeptime = 0
     self.open_TCP_Connection()
-    self.answer_initial_config_request() # method handles switch initial requests
+
+    while True:
+      time.sleep(2)
+      self.eatMessage()
+    #self.answer_initial_config_request() # method handles switch initial requests
     #self.request_switch_neighbors() Not needed for setup
 
   def run(self):
@@ -224,8 +228,8 @@ if __name__ == '__main__':
   Create our fake switch
   """
   fs = fakeSwitch()
-  thread = Thread(target=fs.echo_loop,args=())
-  thread.start()
+  #thread = threading.Thread(target=fs.echo_loop,args=())
+  #thread.start()
   # thread1.setSleep(2)
   # thread1.setOption(0)
   # thread1.start()
