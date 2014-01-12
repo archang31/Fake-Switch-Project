@@ -32,7 +32,7 @@
 \begin{spacing}{1.0}
 
 \begin{abstract}
-This paper looks at the security concerns and potential vulnerabilities in Software Definined Networking (SDN). In particular, we examine additional attack vector of remotely introducing a switch into the networking path, something not possible without physical access to the switching site in a traditional network. We also look at the increased risk to the entire network from a single, compromised risk due to the centralized nature of SDN . We first provide an overview of SDN, the current status of security in SDN controllers, and discuss the threat models for our attack. We then introduce our roque switch and present several  attacks on various controller. We also discuss additional attacks possible by a rogue switch and examine additional vulnerabilities to a SDN from a single compromised switch. Finally, we conclude with some recommendations for hardening SDN controllers and limiting the area of attack.
+This paper looks at the security concerns and potential vulnerabilities in Software Defined Networking (SDN). In particular, we examine the attack vector of remotely introducing a switch into the networking path, something not possible without physical access to the switching site in a traditional network. We also look at the increased risk to the entire network from a single, compromised switch due to the centralized nature of SDN . First, we provide an overview of SDN, the current status of security in SDN controllers, and discuss the threat models for our attack. We then introduce our roque switch and present several  attacks on various controller. We also discuss additional attacks possible by a rogue switch and examine additional vulnerabilities to a SDN from a single compromised switch. Finally, we conclude with some recommendations for hardening SDN controllers and limiting the area of attack.
 \end{abstract}
 
 \begin{multicols}{2}
@@ -40,16 +40,17 @@ This paper looks at the security concerns and potential vulnerabilities in Softw
 \section{Introduction}
 Paragraph about SDN - the various meanings of SDN and that we are discussing the traditional controller switch networking.
 
-Not sure of difference between intro / background.
+Not sure of difference between intro / background anymore as Anna mentioned Friday.
 
 Things to discuss
 -- Controllers
 ----Various Controller. That we are doing testing on Ryu and Pox (possibly OpenDaylight but its more complicated)
 ----Switches - In this context, a switch means either an OpenFlow capable hardware switch or a completely software defined switch (OpenVSwitch)
+----Need to Discuss Proactive verses Reactive Flow Installation - While the majority of the attacks presented in this paper would be more effective in a reactive Flow Installation configuration, they would still be 
 
+Threat Model
+- Need to make sure we specifically discuss current security in switch - using TLS certs, who supports, etc.
 In section 2, we will.... In Section 3, etc. In Section 4, etc. Finally
-
-We probably want to introduce things, right now that's in report.tex.  We might want to cite something in the introduction, we can do that using \begin{verbatim}{\cite{refname}\end{verbatim} where the \emph{refname} is defined in bibliography.tex in the \begin{verbatim}{\bibitem}\end{verbatim} command.  For example citing dpkt looks like this: \cite{dpkt}.
 
 \section{Background}
 
