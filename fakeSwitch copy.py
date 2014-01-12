@@ -21,6 +21,7 @@ import time
 import ofprotocol
 import threading
 
+
 class fakeSwitch(threading.Thread):
   """
   docstring
@@ -31,13 +32,15 @@ class fakeSwitch(threading.Thread):
     docstring
     """
     self.sleeptime = 0
-    self.open_TCP_Connection()
-    self.answer_initial_config_request() # method handles switch initial requests
+    #self.open_TCP_Connection()
+    #self.answer_initial_config_request() # method handles switch initial requests
     #self.request_switch_neighbors() Not needed for setup
 
   def run(self):
     if self.option == 1:
       self.packetInTest # method takes care of echo requests for keep alives
+    elif self.option == 2:
+      self.eatEcho()
     else:
       self.echo_loop()
       
@@ -46,6 +49,10 @@ class fakeSwitch(threading.Thread):
 
   def setOption(self, opt):
     self.option = opt
+
+  def setConnection(self, connection):
+    self.s = connection
+    #self.answer_initial_config_request() 
 
   def open_TCP_Connection(self):
     host = '127.0.0.1'
@@ -103,7 +110,7 @@ class fakeSwitch(threading.Thread):
     #msg2 = self.s.recv(146) ## Barrier Request
     #this message is not needed for a ryu controller
     #self.messageHandler(msg2) ## Barrier Reply
-    self.eatMessage() #Get Config Request
+    #self.eatMessage() #Get Config Request
     #self.s.send(bytearray.fromhex('0108000c010b5e800000ffff')) #Get Config Reply
     #real switch reply Header = 01 08 00 0c
     #second byte is "transaction ID "00 b6  8c 98 ''    00 00 ff ff 
@@ -123,10 +130,15 @@ class fakeSwitch(threading.Thread):
   
   def echo_loop(self):
     while(1):
-      time.sleep(self.sleeptime)
+      #time.sleep(self.sleeptime)
       self.s.send(bytearray.fromhex('0102000800000000'))
       #print("Sending Echo Reply")
+      #self.eatMessage()
+
+  def eatEcho(self):
+    while(1):
       self.eatMessage()
+      print("in eat Echo")
 
   def packetInTest(self):
     while(1):
@@ -213,8 +225,18 @@ if __name__ == '__main__':
   """
   Create our fake switch
   """
+  host = '127.0.0.1'
+  port = 6633
+  s=socket.socket()
+  s.connect((host,port))
+  print("Established TCP Connection")
   thread1 = fakeSwitch()
-  thread1.setSleep(2)
+  thread1.setConnection(s)
+  thread1.answer_initial_config_request() 
   thread1.setOption(0)
   thread1.start()
+  thread2 = fakeSwitch()
+  thread2.setConnection(s)
+  thread2.setOption(2)
+  thread2.start()
 

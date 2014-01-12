@@ -1,4 +1,12 @@
-This is attacks.tex and the below is copied from the google doc: 
+\subsection{Executed Attacks} We conducted several attacks on various controller utilizing our rogue switch utility. One key point here is that the method of implementation of the controller (proactive or reactive) as well as the applications running on the controller will significantly effect the results of these attacks. We utilized the basic layer 2 mac address learning example from each controller in our setup \footnote{We used l2\_learning as our Pox controller and l2\_switch as our Ryu controller. We modified the hard flow timeout on both to 1 to better test controller delay.}. A more complicated controller (e.g. one that does more than simply add the mac address as a flow) would see its performance decrease more significantly than in our example test cases.
+
+ \subsubsection{DOS on the Controller}
+ The first attack we attempted was to see if a single switch could overall the controller by sending too
+By sending requests to the controller, the switch could attempt to overload it. One could fine-tune the control messages to maximize churn or CPU consumption in the controller.
+
+However, our results show that a TCP congestion control successfully prevents a single switch from denying service to the controller; instead the extra packets from the switch are dropped.
+
+What happens if in a network with n actual switches, the controller receives “hello” messages from $n^2$ switches, for example? This works around the throttling problem where a controller may simple rate-limit each switch.
 
 \subsection{Dropping traffic} 
 A compromised switch could simply drop packets sent to it, thus creating a service interruption. However, a controller would probably notice this quickly -- it would appear as though the switch had failed, and automated recovery mechanisms would be initiated.
@@ -9,13 +17,9 @@ A compromised switch could ensure that traffic would be routed through an advers
 \subsection{DoS other switches}
 By injecting traffic, a switch could deliberately attempt to overload neighboring switches’ TCAMs or otherwise DoS them.
 
-\subsection{DoS the controller / the control channel}
-By sending requests to the controller, the switch could attempt to overload it. One could fine-tune the control messages to maximize churn or CPU consumption in the controller.
 
-However, our results show that a TCP congestion control successfully prevents a single switch from denying service to the controller; instead the extra packets from the switch are dropped.
 
-\subsection{DDoS the controller by spoofing many switches}
-What happens if in a network with n actual switches, the controller receives “hello” messages from $n^2$ switches, for example? This works around the throttling problem where a controller may simple rate-limit each switch.
+
 
 \subsection{Advertising false host attachments}
 A compromised switch can send the controller packet-in events with false packets, which falsely claim to have a particular MAC address attached to them. This could lead the controller to believe that the compromised switch should receive traffic intended for the host. While this would soon lead to packet loss and a noticeable disruption, it would nevertheless allow a switch to eavesdrop when it would not normally be in a position to do so.
