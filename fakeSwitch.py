@@ -36,10 +36,16 @@ class fakeSwitch(threading.Thread):
     #self.request_switch_neighbors() Not needed for setup
 
   def run(self):
-    self.echo_loop() # method takes care of echo requests for keep alives
-
+    if self.option == 1:
+      self.packetInTest # method takes care of echo requests for keep alives
+    else:
+      self.echo_loop()
+      
   def setSleep(self, time):
     self.sleeptime = time
+
+  def setOption(self, opt):
+    self.option = opt
 
   def open_TCP_Connection(self):
     host = '127.0.0.1'
@@ -56,7 +62,7 @@ class fakeSwitch(threading.Thread):
 
     if (length > 8):
       body = self.s.recv(length - 8)
-      print(str(binascii.hexlify(body)))
+      #print(str(binascii.hexlify(body)))
       bodylen = str(binascii.hexlify(body)).__len__() #I bet there is an inherent way to call this
 
     if msgtype is ofprotocol.messageStringToType('HELLO'):
@@ -68,16 +74,22 @@ class fakeSwitch(threading.Thread):
     elif msgtype is ofprotocol.messageStringToType('ECHO_REQUEST'):
       echo_reply_header = ofprotocol.getHeader(ofprotocol.messageStringToType['ECHO_REPLY'],
           length, xid)
-      print echo_reply_header.join(body)
+      #print echo_reply_header.join(body)
       self.s.send(echo_reply_header.join(body))
 
     elif msgtype is ofprotocol.messageStringToType('SET_CONFIG'):
       print("set config") #no response needed, just need to eat additional message
 
+    elif msgtype is ofprotocol.messageStringToType('GET_CONFIG_REQUEST'):
+      msg = "0108000c" + str(xid) + "0000ffff"
+      self.s.send(bytearray.fromhex(msg))
+
     elif msgtype is ofprotocol.messageStringToType('BARRIER_REQUEST'):
       reply = '011300080000' + body[bodylen-4:bodylen] #last 4 digits need to be the same from the barrier request
-      self.s.send(bytearray.fromhex(reply))    
+      self.s.send(bytearray.fromhex(reply))
 
+    elif msgtype is ofprotocol.messageStringToType('FLOW_MOD'):
+      msg = "011101ac" + str(xid) + "000400000003000000000000000000000000000200000000000000070000000000000094000000000000023e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000003000000000000000600000000000000ee00000000000001e400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fffe00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000003000000000000000600000000000000ee00000000000001e400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
 
   def answer_initial_config_request(self):
     self.eatMessage() ## Hello Message
@@ -88,9 +100,15 @@ class fakeSwitch(threading.Thread):
     #not sure why I could not get your barrier request to be right so I just went back to using my default.
     #your eatMessage actually makes it look like its a Flow Mod Request with lenght 72 followed by a Barrier Request when,
     #according to wireshark, its just a barrier Request after the set config message.
-    msg2 = self.s.recv(146) ## Barrier Request
-    self.messageHandler(msg2) ## Barrier Reply
+    #msg2 = self.s.recv(146) ## Barrier Request
+    #this message is not needed for a ryu controller
+    #self.messageHandler(msg2) ## Barrier Reply
+    self.eatMessage() #Get Config Request
+    #self.s.send(bytearray.fromhex('0108000c010b5e800000ffff')) #Get Config Reply
+    #real switch reply Header = 01 08 00 0c
+    #second byte is "transaction ID "00 b6  8c 98 ''    00 00 ff ff 
 
+    #this message is not sent on a ryu controller
     
  #   msg = self.s.recv(74) ## Hello Message
  #   self.genericMessageHandler(msg)
@@ -110,13 +128,19 @@ class fakeSwitch(threading.Thread):
       #print("Sending Echo Reply")
       self.eatMessage()
 
+  def packetInTest(self):
+    while(1):
+      self.s.send(bytearray.fromhex('010a006c0000000000000107005a000100003333000000166ae6be545fdd86dd6000000000240001fe8000000000000068e6befffe545fddff0200000000000000000000000000163a000502000001008f008abf0000000104000000ff0200000000000000000001ff545fdd'))
+      #print("Sending  Second Packet In - Router Soliciation")
+      self.s.recv(90) ## Packet Out (CSM) Respond
+      
   def messageHandler(self, msg):
     message = str(binascii.hexlify(msg))
     #print(message, len(message))
-    print msg, len(msg)
+    #print msg, len(msg)
     header = ofprotocol.deserializeHeader(msg[:8])
     (version, msgtype, length, xid) = header
-    print 'messageHandler: deserializeHeader: ' + str(header)
+    #print 'messageHandler: deserializeHeader: ' + str(header)
 
     if len(message) == 16: #8B
 
@@ -191,5 +215,6 @@ if __name__ == '__main__':
   """
   thread1 = fakeSwitch()
   thread1.setSleep(2)
+  thread1.setOption(0)
   thread1.start()
 
