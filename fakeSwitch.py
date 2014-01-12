@@ -1,44 +1,30 @@
 ######################################################################
 # Fake Switch
 # Authors:  
-#           Michael Kranch
-#
-# Python 3.3.2
+#           Michael Kranch, Bonnie Eisenman
 #
 # Description:
-#
-#
 #
 ######################################################################
 
 
-import socket
-import sys
-import dpkt
-import binascii
-import bitarray
-import time
+import binascii, bitarray, dpkt, socket, sys, threading, time
 import ofprotocol
-import threading
 
 class fakeSwitch():
   """
   docstring
   """        
   def __init__(self): #now the initialization part of each thread
-    # threading.Thread.__init__(self) 
     """
     docstring
     """
-    self.controller_connected = False
     self.sleeptime = 0
     self.open_TCP_Connection()
 
     while True:
       time.sleep(2)
       self.eatMessage()
-    #self.answer_initial_config_request() # method handles switch initial requests
-    #self.request_switch_neighbors() Not needed for setup
 
   def run(self):
     if self.option == 1:
@@ -73,73 +59,48 @@ class fakeSwitch():
     body = None
     if (length > 8):
       body = self.s.recv(length - 8)
-      #print(str(binascii.hexlify(body)))
-      bodylen = str(binascii.hexlify(body)).__len__() #I bet there is an inherent way to call this
+      bodylen = len(str(binascii.hexlify(body)))
+
+    reply = None
 
     if msgtype is ofprotocol.messageStringToType('HELLO'):
-      self.s.send(ofprotocol.getHello(xid))
+      reply = ofprotocol.getHello(xid)
 
     elif msgtype is ofprotocol.messageStringToType('FEATURES_REQUEST'):
-      self.s.send(ofprotocol.getFeaturesReply(xid))
+      reply = ofprotocol.getFeaturesReply(xid)
 
     elif msgtype is ofprotocol.messageStringToType('ECHO_REQUEST'):
       echo_reply_header = ofprotocol.getHeader(ofprotocol.messageStringToType['ECHO_REPLY'],
           length, xid)
-      #print echo_reply_header.join(body)
-      self.s.send(echo_reply_header.join(body))
+      reply = echo_reply_header.join(body)
 
     elif msgtype is ofprotocol.messageStringToType('SET_CONFIG'):
       print("set config") #no response needed, just need to eat additional message
 
     elif msgtype is ofprotocol.messageStringToType('GET_CONFIG_REQUEST'):
       msg = "0108000c" + str(xid) + "0000ffff"
-      self.s.send(bytearray.fromhex(msg))
+      reply = bytearray.fromhex(msg)
 
     elif msgtype is ofprotocol.messageStringToType('BARRIER_REQUEST'):
-      reply = '011300080000'
+      r = '011300080000'
       if body:
-        reply = reply + body[bodylen-4:bodylen] #last 4 digits need to be the same from the barrier request
-      self.s.send(bytearray.fromhex(reply))
+        r = r + body[bodylen-4:bodylen] #last 4 digits need to be the same from the barrier request
+      reply = bytearray.fromhex(r)
 
     elif msgtype is ofprotocol.messageStringToType('FLOW_MOD'):
       msg = "011101ac" + str(xid) + "000400000003000000000000000000000000000200000000000000070000000000000094000000000000023e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000003000000000000000600000000000000ee00000000000001e400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fffe00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000003000000000000000600000000000000ee00000000000001e400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
 
-  def answer_initial_config_request(self):
-    self.eatMessage() ## Hello Message
-    self.eatMessage() ## Features Request Message
-    self.eatMessage() ## Set Config Message (no response needed)
-    #self.eatMessage() ## Flow Mod Request
-    #self.eatMessage() ## Barrier Request
-    #not sure why I could not get your barrier request to be right so I just went back to using my default.
-    #your eatMessage actually makes it look like its a Flow Mod Request with lenght 72 followed by a Barrier Request when,
-    #according to wireshark, its just a barrier Request after the set config message.
-    #msg2 = self.s.recv(146) ## Barrier Request
-    #this message is not needed for a ryu controller
-    #self.messageHandler(msg2) ## Barrier Reply
-    self.eatMessage() #Get Config Request
-    #self.s.send(bytearray.fromhex('0108000c010b5e800000ffff')) #Get Config Reply
-    #real switch reply Header = 01 08 00 0c
-    #second byte is "transaction ID "00 b6  8c 98 ''    00 00 ff ff 
+    if reply:
+      print 'Sending reply: ', repr(reply)
+      self.s.send(reply)
 
-    #this message is not sent on a ryu controller
-    
- #   msg = self.s.recv(74) ## Hello Message
- #   self.genericMessageHandler(msg)
- 
-    #self.messageHandler(msg)
- #   msg = self.s.recv(74) ## Features Request
- #   self.genericMessageHandler(msg)
-    #self.messageHandler(msg)
- #   msg = self.s.recv(78) ## Set Config Message (no response needed)
-    # msg2 = self.s.recv(146) ## Barrier Request
-    # self.messageHandler(msg2) ## Barrier Reply
   
   def echo_loop(self):
     print 'echo_loop'
     while(1):
       time.sleep(self.sleeptime)
       self.s.send(bytearray.fromhex('0102000800000000'))
-      #print("Sending Echo Reply")
+      #print("Sending Echo Reply") <-- is that a request?
       self.eatMessage()
 
   def packetInTest(self):
