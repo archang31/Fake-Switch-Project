@@ -57,13 +57,18 @@ class fakeSwitch(threading.Thread):
   def eatMessage(self):
     header = self.s.recv(8)
     print repr(header)
+
+    if len(header) < 8:
+      return
+
     (version, msgtype, length, xid) = ofprotocol.deserializeHeader(header[:8])
     print 'eatMessage: msgtype = ' + ofprotocol.messageTypeToString(msgtype) + '; length = ' + str(length)
 
+    body = None
     if (length > 8):
       body = self.s.recv(length - 8)
       #print(str(binascii.hexlify(body)))
-      bodylen = str(binascii.hexlify(body)).__len__() #I bet there is an inherent way to call this
+      bodylen = len(str(binascii.hexlify(body))) 
 
     if msgtype is ofprotocol.messageStringToType('HELLO'):
       self.s.send(ofprotocol.getHello(xid))
