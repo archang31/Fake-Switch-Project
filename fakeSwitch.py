@@ -21,15 +21,16 @@ import time
 import ofprotocol
 import threading
 
-class fakeSwitch(threading.Thread):
+class fakeSwitch():
   """
   docstring
   """        
   def __init__(self): #now the initialization part of each thread
-    threading.Thread.__init__(self) 
+    # threading.Thread.__init__(self) 
     """
     docstring
     """
+    self.controller_connected = False
     self.sleeptime = 0
     self.open_TCP_Connection()
     self.answer_initial_config_request() # method handles switch initial requests
@@ -130,6 +131,7 @@ class fakeSwitch(threading.Thread):
     # self.messageHandler(msg2) ## Barrier Reply
   
   def echo_loop(self):
+    print 'echo_loop'
     while(1):
       time.sleep(self.sleeptime)
       self.s.send(bytearray.fromhex('0102000800000000'))
@@ -221,8 +223,10 @@ if __name__ == '__main__':
   """
   Create our fake switch
   """
-  thread1 = fakeSwitch()
-  thread1.setSleep(2)
-  thread1.setOption(0)
-  thread1.start()
+  fs = fakeSwitch()
+  thread = Thread(target=fs.echo_loop,args=())
+  thread.start()
+  # thread1.setSleep(2)
+  # thread1.setOption(0)
+  # thread1.start()
 
