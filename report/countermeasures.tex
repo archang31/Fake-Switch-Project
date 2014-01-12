@@ -1,5 +1,17 @@
 \subsection{Security as a Priority}
 
-OpenFlow v1.0.1 currently lists SSL/TLS as an "optional" feature. Though previous security analyses have consistently recommended SSL/TLS as a solution to most vulnerabilities, 
+OpenFlow v1.0.1 currently lists SSL/TLS as an "optional" feature. Though previous security analyses have consistently recommended SSL/TLS as a solution to most vulnerabilities, neither controller developers nor hardware manufacturers have implemented SSL/TLS despite these glaring problems. This is in many ways a chicken-and-egg problem. Manufacturers can argue that there is no demand for extra security features; meanwhile, any potential OpenFlow users who need security won't bother with the platform.
 
-\subsection{Hardening the Controller}
+Therefore, we recommend that future versions of the specification must include security as a top-level priority, with features such as SSL declared as mandatory, in order for us to have any hope of being able to secure OpenFlow systems. 
+
+\subsection{Trust On Boot}
+
+In the absence of SSL/TLS,  a controller can still attempt to protect itself from deceptive switches. The controllers we examined automatically accepted connections with our rogue switch without complaint. This default behavior is extremely dangerous, as any malicious attacker with the controller's IP address can easily connect to the controller and thereby execute any of the attacks from this paper. A controller could mitigate this risk by automatically accepting switch connections only for a short time window after boot; afterwards, new switches would have to be verified by some other mechanism--perhaps a whitelist established by the network administrator. However, this approach has the drawback of requiring extra work on the part of the network administrator.
+
+\subsection{Dynamic Switch Inspection}
+
+A controller could monitor switches' behavior and detect when a switch was behaving oddly. For example, one of our successful attacks involved rapidly migrating MAC addresses between fake switches. Detection algorithms could be trained on historical data, and identify such attacks as they happen. The suspicious switch could then be quarantined or removed from the network.
+
+\subsection{Physical Security}
+
+None of these attacks are possible without a way to initiate a TCP connection with the controller. The controller's IP address should be closely guarded, and 
