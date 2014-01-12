@@ -22,9 +22,15 @@ class fakeSwitch():
     self.sleeptime = 0
     self.open_TCP_Connection()
 
+    waitcount = 5
+
     while True:
-      time.sleep(2)
+      time.sleep(1)
       self.eatMessage()
+      waitcount -= 1
+      if waitcount < 0:
+        self.request_switch_neighbors() 
+        waitcount = 5
 
   def run(self):
     if self.option == 1:
