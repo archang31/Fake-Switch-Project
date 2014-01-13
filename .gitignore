@@ -1,6 +1,7 @@
 *.pyc
 *sublime*
 *.log
+<<<<<<< HEAD
 *.pdf
 new fakeSwitch.py
 
@@ -9,3 +10,9 @@ new ofprotocol.py
 report/report.aux
 
 report/report.synctex.gz
+=======
+report.pdf
+*.aux
+>>>>>>> fbf2ec527ef8751b09c2148f8b3f174647ccbcac
+
+ofprotocol copy.py

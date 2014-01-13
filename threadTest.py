@@ -19,7 +19,7 @@ import bitarray
 import time
 import ofprotocol
 import threading
-import fakeSwitch
+import MichaelFakeSwitch
 
 if __name__ == '__main__':
   """
@@ -31,12 +31,12 @@ if __name__ == '__main__':
     port = 6633
     s=socket.socket()
     s.connect((host,port))
-    thread1 = fakeSwitch.fakeSwitch()
+    thread1 = MichaelFakeSwitch.fakeSwitch()
     thread1.setConnection(s)
-    thread1.answer_initial_config_request() 
+    thread1.answer_initial_config_request()
     thread1.setOption(0)
     thread1.start()
-    thread2 = fakeSwitch.fakeSwitch()
+    thread2 = MichaelFakeSwitch.fakeSwitch()
     thread2.setConnection(s)
     thread2.setOption(2)
     thread2.start()
