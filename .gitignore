@@ -2,3 +2,10 @@
 *sublime*
 *.log
 *.pdf
+new fakeSwitch.py
+
+new ofprotocol.py
+
+report/report.aux
+
+report/report.synctex.gz

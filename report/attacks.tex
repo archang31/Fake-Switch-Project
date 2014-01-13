@@ -16,10 +16,10 @@ However, our results show that a TCP congestion control successfully prevents a 
 
 What happens if in a network with n actual switches, the controller receives “hello” messages from $n^2$ switches, for example? This works around the throttling problem where a controller may simple rate-limit each switch.
 
-\subsection{Dropping traffic} 
+\subsubsection{Dropping traffic} 
 A compromised switch could simply drop packets sent to it, thus creating a service interruption. However, a controller would probably notice this quickly -- it would appear as though the switch had failed, and automated recovery mechanisms would be initiated.
 
-\subsection{Cloning or diverting traffic}
+\subsubsection{Cloning or diverting traffic}
 A compromised switch could ensure that traffic would be routed through an adversary’s middlebox, or could clone traffic and send the cloned stream to the adversary. This would be more difficult for the controller to detect, unless it caused considerable slowdown. This attack could conceivably be used for purposes such as the NSA’s MUSCULAR program, which intercepts traffic as it flows between private data centers \cite{muscular}. 
 
 \subsection{Unexecuted Attacks}
