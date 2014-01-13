@@ -1,4 +1,7 @@
-\subsection{Executed Attacks} We conducted several attacks on various controller utilizing our rogue switch utility. 
+
+\subsection{Executed Attacks} 
+
+We conducted several attacks on various controller utilizing our rogue switch utility. 
 
  \subsubsection{DOS on the Controller}
 We utilized the basic layer 2 mac address learning example from each controller with a modified the hard flow timeout of 1 as our setup\footnote{We used l2\_learning as our Pox controller and l2\_switch as our Ryu controller.}. We also utilize the basic mininet setup (1 switch with 2 hosts) to test the delay caused by our attack on each controller. We would have h1 ping h2 To test the delay cause on the controller, we would simply A more complicated controller (e.g. one that does more than simply add the mac address as a flow) would see its performance decrease more significantly than in our example test cases.
@@ -19,25 +22,26 @@ A compromised switch could simply drop packets sent to it, thus creating a servi
 \subsection{Cloning or diverting traffic}
 A compromised switch could ensure that traffic would be routed through an adversary’s middlebox, or could clone traffic and send the cloned stream to the adversary. This would be more difficult for the controller to detect, unless it caused considerable slowdown. This attack could conceivably be used for purposes such as the NSA’s MUSCULAR program, which intercepts traffic as it flows between private data centers \cite{muscular}. 
 
-\subsection{DoS other switches}
-By injecting traffic, a switch could deliberately attempt to overload neighboring switches’ TCAMs or otherwise DoS them.
+\subsection{Unexecuted Attacks}
+\subsubsection{DoS other switches}
+By injecting traffic, a switch could deliberately attempt to overload neighboring switches' TCAMs or otherwise DoS them. The rogue switch could leverage its connection to the controller in order to prompt the controller to broadcast many erroneous flow modifications; thus, instead of attacking each network element individually, the controller gives the attacker an easy, cheap way to concurrently many switches at once. 
 
-
-
-
-
-\subsection{Advertising false host attachments}
+\subsubsection{Advertising false host attachments}
 A compromised switch can send the controller packet-in events with false packets, which falsely claim to have a particular MAC address attached to them. This could lead the controller to believe that the compromised switch should receive traffic intended for the host. While this would soon lead to packet loss and a noticeable disruption, it would nevertheless allow a switch to eavesdrop when it would not normally be in a position to do so.
 
-\subsection{Falsify measurement reports}
+\subsubsection{Falsify measurement reports}
 A switch may return false results in response to a read-state  measurement message, thus causing the controller to behave irrationally. For example, a switch could falsify or hide a DoS attack, elephant flows, etc.
 
-\subsection{Ignoring rules}
+\subsubsection{Ignoring rules}
 A switch could simply ignore flow-table modification requests. For example, dropping packets will be noticed quickly; but a switch could allow packets to pass through that should have been dropped. Because of the difficulty of querying flow table state, the controller may not become aware of this. A compromised switch could thus operate in “stealth mode” and the inconsistent flow table might only be noticed once the switch allows a DoS attack to pass through, for example.
 
-\subsection{Modifying VLAN tags}
+\subsubsection{Modifying VLAN tags}
+A switch could modify VLAN tags in order to have malicious traffic be erroneously treated by other network elements. For example, if normal only packets with a certain VLAN tag are allowed to access a sensitive resource, the switch could ensure that the attacker's traffic appears to have valid permissions. % I'm really not so sure about this one, so maybe we shouldn't include it.
 
-\subsection{Reporting flow mods to an adversary}
+\subsubsection{Reporting flow mods to an adversary}
 An adversary could hope to learn about network traffic by observing flow mods. Certain flow mods might indicate that the controller has, for example, detected an intrusion, or that a specific host has connected to the network in a certain location. Thus, just knowing what flow mods are being issued by the controller could be a source of interesting information for an adversary.
+
+\subsubsection{Fingerprinting controller applications}
+Similarly, the rogue switch could send packets directly to the controller and observe the controller's response in order to determine what kinds of applications are probably running on the controller. This information could then be used by an attacker to more narrowly target future attacks.
 
 \subsection{Even more...}
