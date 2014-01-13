@@ -1,25 +1,31 @@
-\documentclass[12pt, letterpaper, twoside]{article}
+\documentclass[11pt, letterpaper, twocolumn, twoside]{article}
 %\usepackage{epstopdf}
 %\usepackage[pdftex]{graphicx}
-\usepackage[left=.8in,top=.8in,right=.8in,bottom=.8in,nohead,nofoot,columnsep=20pt]{geometry}
+%\usepackage[left=.8in,top=.8in,right=.8in,bottom=.8in,nohead,nofoot,columnsep=20pt]{geometry}
+\usepackage[left=1in,top=1in,right=1in,bottom=1in,columnsep=20pt]{geometry}
 \usepackage{setspace}
 \usepackage[small,compact]{titlesec}
 \usepackage{subfigure}
-\usepackage{multicol}
+%\usepackage{multicol}
 %\usepackage{multirow}
 \usepackage{textcomp}
 \usepackage{mathtools}
 \usepackage{amsmath}
 \usepackage[hyphens]{url}
 \usepackage{float}
-\usepackage{fancyhdr}
-\setlength{\headheight}{14.5pt}
-\setlength{\footskip}{11pt}
-\pagestyle{fancy}
-\lhead{}
-\chead{}
-\rhead{}
-\rfoot{}
+%\usepackage{fancyhdr}
+%\setlength{\headheight}{14.5pt}
+%\setlength{\footskip}{11pt}
+%\pagestyle{fancy}
+%\lhead{}
+%\chead{}
+%\rhead{}
+%\rfoot{}
+
+\makeatletter
+\setlength{\@fptop}{0pt}
+\makeatother
+
 
 \title{Title goes in report.tex}
 \author{Bonnie Eisenman, Michael Kranch and Anna Kornfeld Simpson}
@@ -35,7 +41,7 @@
 This paper looks at the security concerns and potential vulnerabilities in Software Defined Networking (SDN). In particular, we examine the attack vector of remotely introducing a switch into the networking path, something not possible without physical access to the switching site in a traditional network. We also look at the increased risk to the entire network from a single, compromised switch due to the centralized nature of SDN . First, we provide an overview of SDN, the current status of security in SDN controllers, and discuss the threat models for our attack. We then introduce our roque switch and present several  attacks on various controller. We also discuss additional attacks possible by a rogue switch and examine additional vulnerabilities to a SDN from a single compromised switch. Finally, we conclude with some recommendations for hardening SDN controllers and limiting the area of attack.
 \end{abstract}
 
-\begin{multicols}{2}
+%\begin{multicols}{2}
 
 \section{Introduction}
 Paragraph about SDN - the various meanings of SDN and that we are discussing the traditional controller switch networking.
@@ -79,7 +85,7 @@ The conclusion might be short enough to be in report.tex - we can add other sect
 % Imports the bibliography, don't remove
 \input{bibliography}
 
-\end{multicols}
+%\end{multicols}
 
 \end{spacing}
 

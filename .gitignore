@@ -1,4 +1,5 @@
 *.pyc
 *sublime*
 *.log
-*.pdf
+report.pdf
+*.aux
