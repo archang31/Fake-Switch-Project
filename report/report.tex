@@ -44,25 +44,8 @@ This paper looks at the security concerns and potential vulnerabilities in Softw
 %\begin{multicols}{2}
 
 \section{Introduction}
-Paragraph about SDN - the various meanings of SDN and that we are discussing the traditional controller switch networking.
+\input{intro}
 
-Not sure of difference between intro / background anymore as Anna mentioned Friday.
-
-Things to discuss
--- Controllers
-----Various Controller. That we are doing testing on Ryu and Pox (possibly OpenDaylight but its more complicated)
-----Switches - In this context, a switch means either an OpenFlow capable hardware switch or a completely software defined switch (OpenVSwitch)
-----Need to Discuss Proactive verses Reactive Flow Installation - While the majority of the attacks presented in this paper would be more effective in a reactive Flow Installation configuration, they would still be 
-
-Threat Model
-- Need to make sure we specifically discuss current security in switch - using TLS certs, who supports, etc.
-In section 2, we will.... In Section 3, etc. In Section 4, etc. Finally
-
-\section{Background}
-
-\subsection{Software Defined Networking}
-
-\subsection{Security in SDN}
 
 \section{Creating a Software Defined Switch}
 \label{fake}
@@ -70,7 +53,6 @@ In section 2, we will.... In Section 3, etc. In Section 4, etc. Finally
 
 \section{Disrupting an SDN with a Fake Switch}
 \label{attacks}
-There's a file called attacks.tex for describing our various attacks; we could combine the results of the attacks we implemented here, or put them separately.
 \input{attacks}
 
 \section{Countermeasures}
@@ -79,7 +61,6 @@ There's a file called attacks.tex for describing our various attacks; we could c
 
 \section{Related Work}
 \label{related}
-The related work might be long, so let's put it in a separate file, related.tex
 \input{related}
 
 \section{Conclusion}
@@ -89,7 +70,6 @@ The conclusion might be short enough to be in report.tex - we can add other sect
 % Imports the bibliography, don't remove
 \input{bibliography}
 
-%\end{multicols}
 
 \end{spacing}
 
