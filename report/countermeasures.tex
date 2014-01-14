@@ -8,16 +8,12 @@ Therefore, we recommend that future versions of the specification must include s
 
 \subsection{Verification in the Absence of SSL/TLS}
 
-In the absence of SSL/TLS,  a controller can still attempt to protect itself from deceptive switches. The controllers we examined automatically accepted connections with our rogue switch without complaint. This default behavior is extremely dangerous, as any malicious attacker with the controller's IP address can easily connect to the controller and thereby execute any of the attacks from this paper. A controller could mitigate this risk by automatically accepting switch connections only for a short time window after boot; afterwards, new switches would have to be verified or approved by some other mechanism--perhaps a whitelist established by the network administrator. However, this approach has the drawback of requiring extra work on the part of the network administrator.
+In the absence of SSL/TLS,  a controller can still attempt to protect itself from deceptive switches. One weakness we saw was that controllers we examined automatically accepted connections with our rogue switch without complaint. This default behavior is extremely dangerous, as any malicious attacker with the controller's IP address can easily connect to the controller and thereby execute any of the attacks from this paper. A controller could mitigate this risk by automatically accepting switch connections only for a short time window after boot; afterwards, new switches would have to be verified or approved by some other mechanism--perhaps a whitelist established by the network administrator, with each switch being assigned some sort of hard-coded datapath ID. However, this approach has the drawback of requiring extra work on the part of the network administrator.
 
-% assign data path IDs?
+Generally, attempting to verify switch behavior is a good idea, and from a security standpoint, necessary in an OpenFlow world without SSL/TLS. 
+The controller should monitor switches' behavior and detect when a switch is behaving oddly. This is an are where machine learning could be extremely useful: algorithms could be trained on historical data, and identify such attacks as they happen. Sudden spikes in the number of new switches, or TCP connections to the controller from suspicious physical locations, should be reported to a network administrator. The suspicious switch could then be quarantined or removed from the network.
 
-% transaction ID checking....
+Controllers can also raise the bar required for successful rogue switch implementations by doing basic sanity checking on reply messages. For example, requiring replies to have the correct transaction ID is a very basic, but useful step in making switch-faking somewhat more difficult for an adversary to correctly implement.
 
-generally, checking on the switches is a good idea; asking to view the flow tables periodically
+The controller could also periodically query switches' flow table state to determine if they are behaving correctly. While a switch could of course falsify this state, a requirement to be able to send the ``correct" state on request would mean a significant amount of extra work for the rogue switch. The OpenFlow protocol, however, doesn't make this very straightforward; aggregate flow table stats can be requested, and the controller can request statistics for specified flows, but that's it. This is a functionality which could be improved in future versions.
 
-\subsection{Monitoring for Abnormalities}
-
-The controller should monitor switches' behavior and detect when a switch is behaving oddly. For example, one of our successful attacks involved rapidly migrating MAC addresses between fake switches. This is an are where machine learning could be extremely useful: algorithms could be trained on historical data, and identify such attacks as they happen. 
-
-Additionally, sudden spikes in the number of new switches, or TCP connections to the controller from suspicious physical locations, should be reported to a network administrator. The suspicious switch could then be quarantined or removed from the network.
