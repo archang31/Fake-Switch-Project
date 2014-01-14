@@ -102,94 +102,51 @@ docstring
     self.eatMessage() ## Hello Message
     self.eatMessage() ## Features Request Message
     self.eatMessage() ## Set Config Message (no response needed)
-    #self.eatMessage() ## Flow Mod Request
-    #self.eatMessage() ## Barrier Request
-    #not sure why I could not get your barrier request to be right so I just went back to using my default.
-    #your eatMessage actually makes it look like its a Flow Mod Request with lenght 72 followed by a Barrier Request when,
-    #according to wireshark, its just a barrier Request after the set config message.
-    #msg2 = self.s.recv(146) ## Barrier Request
-    #this message is not needed for a ryu controller
-    #self.messageHandler(msg2) ## Barrier Reply
+    #Barrier Handling Not need for a ryu controller
+    print("About to eat Barrier Message")
+    msg2 = self.s.recv(146) ## Barrier Request
+    msg2 = str(binascii.hexlify(msg2))
+    reply = '011300080000' + msg2[len(msg2)-4:]#last 4 digits need to be the same from the barrier message
+    self.s.send(bytearray.fromhex(reply))#Barrier Reply
     #self.eatMessage() #Get Config Request
     #self.s.send(bytearray.fromhex('0108000c010b5e800000ffff')) #Get Config Reply
-    #real switch reply Header = 01 08 00 0c
-    #second byte is "transaction ID "00 b6 8c 98 '' 00 00 ff ff
-
-    #this message is not sent on a ryu controller
-    
- # msg = self.s.recv(74) ## Hello Message
- # self.genericMessageHandler(msg)
- 
-    #self.messageHandler(msg)
- # msg = self.s.recv(74) ## Features Request
- # self.genericMessageHandler(msg)
-    #self.messageHandler(msg)
- # msg = self.s.recv(78) ## Set Config Message (no response needed)
-    # msg2 = self.s.recv(146) ## Barrier Request
-    # self.messageHandler(msg2) ## Barrier Reply
   
   def echo_loop(self):
     while(1):
-      #time.sleep(.01)
+      time.sleep(1)
       self.s.send(bytearray.fromhex('0102000800000000'))
-      #print("Sending Echo Request")
-      #self.eatMessage()
+      print("Sending Echo Request")
+      #self.eatMessage() #NOT WORKING FOR ECHO REPLY
+      self.s.recv(74)
+      self.packetInTest()
 
   def eatEcho(self):
     while(1):
-      #time.sleep(.01)
+      time.sleep(.1)
       self.s.recv(74)
       #print("in eat Echo")
 
   def packetInTest(self):
-    while(1):
-      self.s.send(bytearray.fromhex('010a006c0000000000000107005a000100003333000000166ae6be545fdd86dd6000000000240001fe8000000000000068e6befffe545fddff0200000000000000000000000000163a000502000001008f008abf0000000104000000ff0200000000000000000001ff545fdd'))
+      openheader = "010a007400000000" #01 Ver, 0a (10) is Packet IN Type, 0074 (116) is length, 00000000 is xid
+      openpacket = "00000115" + "0062" + "0002" + "00" + "00" # Buffer ID (277) + Frame Length (98) + Recv Port (2) + Reason (No matching flow(0)) + Random "00"
+      dstmac = "000000000001"
+      srcmac = "000000000002"
+      ethtype = "0800" #IP (0x0800)
+      ethernet = dstmac + srcmac + ethtype
+      srcip = "0a000002"
+      dstip = "0a000001"
+      IPV4 = "450000546431000040010276" + srcip + dstip
+      control = "00005dd511ae0004083fd552bbe30c0008090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f3031323334353637"         
+      frame = ethernet + IPV4 + control
+      print(openheader + '\n' + openpacket + '\n' + ethernet + '\n' + IPV4)
+      packet = openheader + openpacket + frame
+      packet2 = "010a0074000000000000010d006200020000000000000001000000000002080045000054642f0000400102780a0000020a000001000044cd15880002f843d552e40e090008090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f3031323334353637"
+      print(packet)
+      print(packet2)
+      self.s.send(bytearray.fromhex(packet))
       #print("Sending Second Packet In - Router Soliciation")
-      self.s.recv(90) ## Packet Out (CSM) Respond
+      self.s.recv(148) ## Packet Out (CSM) Respond
       
-  def messageHandler(self, msg):
-    message = str(binascii.hexlify(msg))
-    #print(message, len(message))
-    #print msg, len(msg)
-    header = ofprotocol.deserializeHeader(msg[:8])
-    (version, msgtype, length, xid) = header
-    #print 'messageHandler: deserializeHeader: ' + str(header)
-
-    if len(message) == 16: #8B
-
-      if message[0:12] == '010000080000':
-        print("Received Hello SM")
-        self.s.send(ofprotocol.getHello())
-        #self.s.send(bytearray.fromhex('0100000800000002'))
-        print("Sending Hello SM (8B)")
-
-      elif message[0:12] == '010500080000':
-        print("Received Features Request (SM)")
-        self.s.send(bytearray.fromhex('010600b000000013000000000000000100000100ff000000000000c700000fff0002ae2082540a8c73312d657468320000000000000000000000000000000000000000c0000000000000000000000000fffe2ef2ce7647487331000000000000000000000000000000000001000000010000000000000000000000000000000000016e2f9006b5bb73312d657468310000000000000000000000000000000001000000c0000000000000000000000000'))
-        print("Sending Features Reply (176B)")
-
-      else:
-        print("ERROR: IN ELSE FOR LENGTH 16")
-
-    elif len(message) == 24:
-      #if message[0:14] == '0109000c000000' and message[16:24] == '00000080':
-          #three messages 0109000c0000006e00000080
-          # 0109000c0000007300000080
-          # 0109000c0000007800000080
-      print("Set Config (CSM) (12B)")
-      print("I do not believe a response is needed")
-
-    elif len(message) == 160:
-      # example barrier:
-      # ")#010e0048000000880010001f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003000000008000ffffffffffff00000112000800000089
-      print("Received Barrier Request (CSM) 8B")
-      reply = '011300080000' + message[156:160]#last 4 digits need to be the same from the barrier message
-      self.s.send(bytearray.fromhex(reply))
-      print("Sending Barrier Reply (8B)")
-            
-    else:
-      print("In else statement from message handler - should not be here")
-
   def request_switch_neighbors(self):
     self.s.send(bytearray.fromhex('010a006c0000000000000100005a000200003333000000167a8ebe84fa1286dd600000000024000100000000000000000000000000000000ff0200000000000000000000000000163a000502000001008f0074f30000000104000000ff0200000000000000000001ff84fa12'))
     print("Sending Packet In (AM) (108B) Multicast Listen Support Message V2")
@@ -234,9 +191,9 @@ Create our fake switch
   thread1 = fakeSwitch()
   thread1.setConnection(s)
   thread1.answer_initial_config_request()
-  thread1.setOption(2)
+  thread1.setOption(0)
   thread1.start()
-  thread2 = fakeSwitch()
-  thread2.setConnection(s)
-  thread2.setOption(0)
-  thread2.start()
+  #thread2 = fakeSwitch()
+  #thread2.setConnection(s)
+  #thread2.setOption(0)
+  #thread2.start()
