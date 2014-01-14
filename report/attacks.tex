@@ -2,12 +2,6 @@
 \subsection{Executed Attacks} 
 
 We demonstrated several attacks on various controllers utilizing our rogue switch utility. 
-   
-\subsubsection{Dropping traffic}
-The rogue switch could simply drop packets sent to it, thus creating a service interruption. However, a controller would probably notice this quickly -- it would appear as though the switch had failed, and automated recovery mechanisms would be initiated.
-
-\subsubsection{Cloning or diverting traffic}
-A compromised switch could ensure that traffic would be routed through an adversary's middlebox, or could clone traffic and send the cloned stream to the adversary. This would be more difficult for the controller to detect, unless it caused considerable slowdown. This attack could conceivably be used for purposes such as the NSA's MUSCULAR program, which intercepts traffic as it flows between private data centers \cite{muscular}. 
 
 \subsubsection{DOS on the Controller}
 We utilized the basic layer 2 MAC address learning example from each controller with a modified the hard flow timeout of 1 as our setup\footnote{We used l2\_learning as our Pox controller and l2\_switch as our Ryu controller.}. We also utilize the basic mininet setup (1 switch with 2 hosts) to test the delay caused by our attack on each controller. To test the delay cause on the controller, we would simply have h1 ping h2. A more complicated controller (e.g. one that does more than simply add the mac address as a flow) would see its performance decrease more significantly than in our example test cases.
@@ -24,23 +18,29 @@ We utilized the basic layer 2 MAC address learning example from each controller 
    To increase the effect of our attack, we created multiple rogue switches and had each utilize the same attack on the controller. Our testing machine was actually the limiting factor in the number of rogue switches we could spawn, but we utilized 400 switches as the max for comparison purposes.  We further optimized our attack by splitting our TCP socket into a distinct listener and sender. We threaded our application so the two actions were not dependent on each other and achieved significantly better results. With out optimized version, we were able to push packets fast enough to cause TCP Window Zero Errors and the controller to have to drop packets.  These results (shown in Figure 2) show that even a single switch can severally effect the performance of a controller and therefore degrade an entire network. 
 
 \subsection{Other Possible Attacks}
+
+\subsubsection{Cloning, dropping, or diverting traffic}
+
+In general, a rogue switch can mishandle packets it receives from the controller or other switches in various ways. Most basically of all, the rogue switch could simply drop packets sent to it, thus creating a service interruption. However, a controller would probably notice this quickly -- it would appear as though the switch had failed, and automated recovery mechanisms would be initiated. More interestingly, a rogue switch could ensure that traffic would be routed through an adversary's middlebox, or could clone traffic and send the cloned stream to the adversary. This would be much more difficult for the controller to detect, unless it caused considerable slowdown. This attack could conceivably be used for purposes such as the NSA's MUSCULAR program, which intercepts traffic as it flows between private data centers \cite{muscular}. 
+
+\subsubsection{Reporting falsehoods}
+
+A rogue switch can easily send the controller false reports, in order to give the controller an incorrect view of the network state. For example, advertising false host attachments is easy; a rogue switch can send the controller Packet-In events with packets which falsely claim to have a particular MAC address as the sender. This could lead the controller to believe that the compromised switch should receive traffic intended for the host. While this would soon lead to packet loss and a noticeable disruption, it would nevertheless allow a switch to eavesdrop when it would not normally be in a position to do so.
+
+Another potential attack is falsifying measurement reports. When a rogue switch receives a Stats Request, it could respond with a modified Stats Reply that selectively hides or distorts information; for example, making overall traffic levels appear lower so as to disguise a DoS attack. 
+
+\subsubsection{Selective rule modification}
+A rogue switch may behave like a normal switch, leading the controller to believe that it is behaving correctly, but then selectively modifying existing rules, ignoring new Flow Mod requests, or adding new ones. For example, dropping packets will be noticed quickly; but a switch could allow packets to pass through that ought to have been dropped. Because of the difficulty of querying flow table state, the controller may not become aware of this. A compromised switch could thus operate in ``stealth mode" and the inconsistent flow table might only be noticed once the switch allows an attacker to pass through, for example.
+
+The switch could also insert its own modifications; for example, it could add VLAN modification rules in order to have malicious traffic be erroneously treated by other network elements. If normal only packets with a certain VLAN tag are allowed to access a sensitive resource, the switch could ensure that the attacker's traffic appears to have valid permissions.
+
 \subsubsection{DoS other switches}
 By injecting traffic, a switch could deliberately attempt to overload neighboring switches' TCAMs or otherwise DoS them. The rogue switch could leverage its connection to the controller in order to prompt the controller to broadcast many erroneous flow modifications; thus, instead of attacking each network element individually, the controller gives the attacker an easy, cheap way to concurrently many switches at once. 
 
-\subsubsection{Advertising false host attachments}
-A rogue switch could send the controller packet-in events with false packets, which falsely claim to have a particular MAC address attached to them. This could lead the controller to believe that the compromised switch should receive traffic intended for the host. While this would soon lead to packet loss and a noticeable disruption, it would nevertheless allow a switch to eavesdrop when it would not normally be in a position to do so.
+\subsubsection{Learning about the controller}
+An adversary could have many reasons to wish to learn more about the controller and the controller's state. By colluding with a rogue switch, the adversary can gain valuable insight into the controller's status.
 
-\subsubsection{Falsify measurement reports}
-A switch may return false results in response to a read-state  measurement message, thus causing the controller to behave irrationally. For example, a switch could falsify or hide a DoS attack, elephant flows, etc.
+One possible attack would be for the rogue switch to send Packet In events to the controller and observe the controller's response, in order to determine what kind of applications might be running on the controller. This information could be extremely useful for an attacker who wishes to more narrowly target future attacks.
 
-\subsubsection{Ignoring rules}
-A compromised switch could initially imitate a normal switch, so that it receives traffic and operates as a part of the network, and then selectively ignore flow-table modification requests. For example, dropping packets will be noticed quickly; but a switch could allow packets to pass through that should have been dropped. Because of the difficulty of querying flow table state, the controller may not become aware of this. A compromised switch could thus operate in ``stealth mode" and the inconsistent flow table might only be noticed once the switch allows an attacker to pass through, for example.
+A more passive attack would be for the rogue switch to relay all observed Flow Mod and Send Packet events received from the controller to an adversary. The adversary could then hope to learn about network traffic or other network events by observing patterns in Flow Mods. Certain Flow Mods might indicate that the controller has, for example, detected an intrusion, or that a specific host has connected to the network in a certain location. To use the MUSCULAR example again, large companies initiate periodical, large-scale data transfers between data centers; this sort of activity would probably cause very predictable Flow Mod messages to be output from the controller, and thus these could be used to determine when a large data transfer was about to take place. Thus, just knowing what Flow Mods are being issued by the controller could be a source of interesting information for an adversary.
 
-\subsubsection{Modifying VLAN tags}
-A switch could modify VLAN tags in order to have malicious traffic be erroneously treated by other network elements. For example, if normal only packets with a certain VLAN tag are allowed to access a sensitive resource, the switch could ensure that the attacker's traffic appears to have valid permissions. % I'm really not so sure about this one, so maybe we shouldn't include it.
-
-\subsubsection{Reporting flow mods to an adversary}
-An adversary could hope to learn about network traffic by observing flow mods. Certain flow mods might indicate that the controller has, for example, detected an intrusion, or that a specific host has connected to the network in a certain location. Thus, just knowing what flow mods are being issued by the controller could be a source of interesting information for an adversary.
-
-\subsubsection{Fingerprinting controller applications}
-Similarly, the rogue switch could send packets directly to the controller and observe the controller's response in order to determine what kinds of applications are probably running on the controller. This information could then be used by an attacker to more narrowly target future attacks.
