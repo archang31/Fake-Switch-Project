@@ -1,14 +1,11 @@
+Software Defined Networking (SDN), with its concepts of control (decision-making) and data (forwarding) plane separation and centralization of control decisions has gained significant attention from both industrial and academic research communities.  Although the fundamental ideas behind a programmable network trace back to telephony systems, the first hints of a network operating system and control plane API appeared only a decade ago \cite{history}.  One of the foundational papers in SDN was Casado et. al. on Ethane in 2007\cite{ethane}, which was in turn inspired by their previous work on enterprise security in SANE \cite{sane}.  For Casado et. al., network security was a critical motivation and feature for pursuing programmable networking and a centralized control system and they argue that improved management of the network through a centralized controller is a key step in achieving their security goals \cite{ethane}.
+With the development of the OpenFlow API and the first network operating systems \cite{openflow}\cite{nox}, SDN moved rapidly from an exercise in clean-slate design to a reality.  More complicated controllers such as Onix \cite{onix}, Pox \cite{pox}, Ryu \cite{ryu}, and OpenDaylight\cite{opendaylight} have often demonstrated security applications such as the easy implementation of security operations such as firewalling or access control that would previously have required expensive middleboxing \cite{resonance}.  However, the security considerations of SDN itself have receeded behind this plethora of applications until extremely recently.  Two papers from 2013 show renewed interest in this area: Kreutz et. al. examines a number of threat vectors unique to software defined networking, including the consequences of a malicious controller or switch \cite{sdnsec} while Benton et. al. describe vulnerabilities in the overlaid OpenFlow protocol, particularly noting that only one hardware switch as support for secure communication between switch and controller over TLS, while Open vSwitch (\cite{openvswitch}) is the only software to implement it \cite{benton}.
+In this paper, we explore the threat of a compromised SDN switch in depth by implementing a rogue switch and attempting to introduce it into SDNs running on Ryu and Pox controllers (Section \ref{fake}).  We demonstrate several attacks in Section \ref{attacks}, including dropped packets and denial of service to the entire controller.  Finally we conclude in Section \ref{countermeasures} with some proposals for countering these attacks and improving the security of SDN switches.
 
-Paragraph about SDN - the various meanings of SDN and that we are discussing the traditional controller switch networking.
 
-Not sure of difference between intro / background anymore as Anna mentioned Friday.
+%Things to discuss:
+%----Michael, I don't know what this is.  Feel free to add it if you think it needs to be there: Need to Discuss Proactive verses Reactive Flow Installation - While the majority of the attacks presented in this paper would be more effective in a reactive Flow Installation configuration, they would still be 
 
-Things to discuss
--- Controllers
-----Various Controller. That we are doing testing on Ryu and Pox (possibly OpenDaylight but its more complicated)
-----Switches - In this context, a switch means either an OpenFlow capable hardware switch or a completely software defined switch (OpenVSwitch)
-----Need to Discuss Proactive verses Reactive Flow Installation - While the majority of the attacks presented in this paper would be more effective in a reactive Flow Installation configuration, they would still be 
+%Threat Model (right now this isn't a formal section. I think that's ok since this is a systems rather than security class. But if you think otherwise, we can reorganize. I think I covered the salient points.)
+%- Need to make sure we specifically discuss current security in switch - using TLS certs, who supports, etc.
 
-Threat Model
-- Need to make sure we specifically discuss current security in switch - using TLS certs, who supports, etc.
-In section 2, we will.... In Section 3, etc. In Section 4, etc. Finally
