@@ -23,19 +23,19 @@ We utilized the basic layer 2 MAC address learning example from each controller 
 
 In general, a rogue switch can mishandle packets it receives from the controller or other switches in various ways. Most basically of all, the rogue switch could simply drop packets sent to it, thus creating a service interruption. However, a controller would probably notice this quickly -- it would appear as though the switch had failed, and automated recovery mechanisms would be initiated. More interestingly, a rogue switch could ensure that traffic would be routed through an adversary's middlebox, or could clone traffic and send the cloned stream to the adversary. This would be much more difficult for the controller to detect, unless it caused considerable slowdown. This attack could conceivably be used for purposes such as the NSA's MUSCULAR program, which intercepts traffic as it flows between private data centers \cite{muscular}. 
 
-\subsubsection{Reporting falsehoods}
+\subsubsection{Reporting falsehoods to the controller}
 
 A rogue switch can easily send the controller false reports, in order to give the controller an incorrect view of the network state. For example, advertising false host attachments is easy; a rogue switch can send the controller Packet-In events with packets which falsely claim to have a particular MAC address as the sender. This could lead the controller to believe that the compromised switch should receive traffic intended for the host. While this would soon lead to packet loss and a noticeable disruption, it would nevertheless allow a switch to eavesdrop when it would not normally be in a position to do so.
 
 Another potential attack is falsifying measurement reports. When a rogue switch receives a Stats Request, it could respond with a modified Stats Reply that selectively hides or distorts information; for example, making overall traffic levels appear lower so as to disguise a DoS attack. 
 
+The rogue switch could also use the controller as a "relay point" and try to send it Packet In events designed to produce Flow Mods which would then overload other switches' TCAMs or otherwise DoS them. For example, in a MAC learning switch, advertising many new MAC addresses could overload not only the controller, but also other switches, which would have relevant rules installed for the bogus MAC addresses. Thus, instead of attacking each network element individually, the controller gives the attacker an easy, cheap way to concurrently many switches at once. 
+
+
 \subsubsection{Selective rule modification}
 A rogue switch may behave like a normal switch, leading the controller to believe that it is behaving correctly, but then selectively modifying existing rules, ignoring new Flow Mod requests, or adding new ones. For example, dropping packets will be noticed quickly; but a switch could allow packets to pass through that ought to have been dropped. Because of the difficulty of querying flow table state, the controller may not become aware of this. A compromised switch could thus operate in ``stealth mode" and the inconsistent flow table might only be noticed once the switch allows an attacker to pass through, for example.
 
 The switch could also insert its own modifications; for example, it could add VLAN modification rules in order to have malicious traffic be erroneously treated by other network elements. If normal only packets with a certain VLAN tag are allowed to access a sensitive resource, the switch could ensure that the attacker's traffic appears to have valid permissions.
-
-\subsubsection{DoS other switches}
-By injecting traffic, a switch could deliberately attempt to overload neighboring switches' TCAMs or otherwise DoS them. The rogue switch could leverage its connection to the controller in order to prompt the controller to broadcast many erroneous flow modifications; thus, instead of attacking each network element individually, the controller gives the attacker an easy, cheap way to concurrently many switches at once. 
 
 \subsubsection{Learning about the controller}
 An adversary could have many reasons to wish to learn more about the controller and the controller's state. By colluding with a rogue switch, the adversary can gain valuable insight into the controller's status.
