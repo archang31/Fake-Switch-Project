@@ -6,7 +6,10 @@ We utilized the basic layer 2 MAC address learning example from the Pox and Ryu 
  The first attack we attempted was to see if a single switch could overload the controller by rapidly pushing information. We utilized the basic Echo Request (the switch keep-a-live message) as the OpenFlow message to send to the controller to establish a baseline for testing. Bigger packets, particularly ones that require some sort of computation by the controller application, would increase the performance effect on the controller. We started by sending a Echo Request as quickly as possible to the controller without caring about the response. This attack had little effect of the controller and simply resulted in periodic "TCP Previous Segment Lost" messages as a response from the controller. We believe that the issue with this method was we were never reading in the Echo Replies sent from the controller and the controller was simply ignoring our messages because its send buffer was full. We then modified this attack to send a single Echo Request, wait for an Echo Reply and then instantly send another. This attack caused the controller to continually send Echo Replies but at a controller specified rate - we had to wait for a reply before sending another request. As a result, this attack also had little effect on the controller.
 
 \begin{figure}[ht]
-  \includegraphics[width=\linewidth]{DOSAttack.png}
+	{\setlength{\fboxsep}{0pt}%
+	\setlength{\fboxrule}{1pt}%
+	\fbox{\includegraphics[width=\linewidth]{DOSAttack.png}}
+	}%
   \caption{Results of DOS Attacks on the Controller \cite{protocol}}
   \label{fig:DOSattacks}
 \end{figure}
