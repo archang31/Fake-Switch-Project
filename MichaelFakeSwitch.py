@@ -38,7 +38,7 @@ docstring
 
   def run(self):
     if self.option == 1:
-      self.packetInTest # method takes care of echo requests for keep alives
+      self.packetInTest2 # method takes care of echo requests for keep alives
     elif self.option == 2:
       self.eatEcho()
     else:
@@ -118,7 +118,7 @@ docstring
       print("Sending Echo Request")
       #self.eatMessage() #NOT WORKING FOR ECHO REPLY
       self.s.recv(74)
-      self.packetInTest()
+      self.packetInTest2()
 
   def eatEcho(self):
     while(1):
@@ -146,7 +146,39 @@ docstring
       self.s.send(bytearray.fromhex(packet))
       #print("Sending Second Packet In - Router Soliciation")
       self.s.recv(148) ## Packet Out (CSM) Respond
-      
+
+  def packetInTest2(self):
+    packet2 = "010a003c0000000000000100002a000100" + "00"+ "00000000000100000000020806000108000604000200000000020a0000020000000000010a000001"
+    arp = "0003000100060000000000010000080600010800060400020000000000010a0000010000000000020a000002"
+    dstmac = "000000000001"
+    srcmac = "000000000002"
+    dstip = "0a000001"
+    srcip = "0a000002"
+    packet = "010a003c0000000000000100002a000100" + "00"+ dstmac + srcmac + "08060001080006040002" + srcmac + srcip + dstmac + dstip
+    #arp = "000300010006000000000001000008060001080006040002" + srcmac + srcip + dstmac + dstip
+    message = packet2# + arp
+    #addressrequest = "010a003c0000000000000110002a00020000000000000001000000000002080600010800060400010000000000020a0000020000000000000a000001"
+    dstmac = "000000000001"
+    srcmac = "000000000002"
+    unkmac = "000000000000"
+    srcip = "0a000002"
+    dstip = "0a000001"    
+    frame = "08060001080006040001" + srcmac + srcip + unkmac + dstip
+    recvport1 = "0009"
+    recvport2 = "0008"
+    addressrequest = "010a003c0000000000000110002a" + recvport1 + "0000" + dstmac + srcmac + frame
+    self.s.send(bytearray.fromhex(addressrequest))
+    self.s.recv(148) ## Flow Mod
+    addressreply2 = "010a003c0000000000000111002a00010000000000000002000000000001080600010800060400020000000000010a0000010000000000020a000002"
+    frame2 = "08060001080006040002" + dstmac + dstip + srcmac + srcip
+    addressreply =   "010a003c0000000000000111002a" + recvport2 + "0000" + srcmac + dstmac + frame2
+    print(addressreply)
+    print(addressreply2)
+    self.s.send(bytearray.fromhex(addressreply))
+    self.s.recv(148) ## Flow Mod
+    self.echo_loop()
+    
+  
   def request_switch_neighbors(self):
     self.s.send(bytearray.fromhex('010a006c0000000000000100005a000200003333000000167a8ebe84fa1286dd600000000024000100000000000000000000000000000000ff0200000000000000000000000000163a000502000001008f0074f30000000104000000ff0200000000000000000001ff84fa12'))
     print("Sending Packet In (AM) (108B) Multicast Listen Support Message V2")
