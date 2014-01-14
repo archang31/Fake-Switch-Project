@@ -19,6 +19,8 @@ We utilized the basic layer 2 MAC address learning example from each controller 
 
 \subsection{Other Possible Attacks}
 
+Though we have not implemented the attacks in this section, we believe that our rogue switch utility demonstrates that they are very real threats. 
+
 \subsubsection{Cloning, dropping, or diverting traffic}
 
 In general, a rogue switch can mishandle packets it receives from the controller or other switches in various ways. Most basically of all, the rogue switch could simply drop packets sent to it, thus creating a service interruption. However, a controller would probably notice this quickly -- it would appear as though the switch had failed, and automated recovery mechanisms would be initiated. More interestingly, a rogue switch could ensure that traffic would be routed through an adversary's middlebox, or could clone traffic and send the cloned stream to the adversary. This would be much more difficult for the controller to detect, unless it caused considerable slowdown. This attack could conceivably be used for purposes such as the NSA's MUSCULAR program, which intercepts traffic as it flows between private data centers \cite{muscular}. 
