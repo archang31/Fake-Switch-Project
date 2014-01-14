@@ -1,31 +1,30 @@
+A rogue switch such as we developed could be used for numerous disruptions to SDN functionality or attacks that undermine the security assumptions of the system.  We focused our implementation efforts on exploring the posibility of a denial of service (DOS) or distributed denial of service (DDOS) attack on the controller, and discovered its feasibility across multiple countrollers.  Based on this result and the basic interactions between controller and switch, we outline several other attacks and disruptions. 
 
-\subsection{Executed Attacks} 
-
-We demonstrated several attacks on various controllers utilizing our rogue switch utility. 
-
-\subsubsection{DOS on the Controller}
-We utilized the basic layer 2 MAC address learning example from each controller with a modified the hard flow timeout of 1 as our setup\footnote{We used l2\_learning as our Pox controller and l2\_switch as our Ryu controller.}. We also utilize the basic mininet setup (1 switch with 2 hosts) to test the delay caused by our attack on each controller. To test the delay cause on the controller, we would simply have h1 ping h2. A more complicated controller (e.g. one that does more than simply add the mac address as a flow) would see its performance decrease more significantly than in our example test cases.
+\subsection{DOS on the Controller}
+We utilized the basic layer 2 MAC address learning example from the Pox and Ryu controllers with a modified the hard flow timeout of 1 as our setup\footnote{We used l2\_learning as our Pox controller and l2\_switch as our Ryu controller.}. We also utilized the basic mininet setup (1 switch with 2 hosts) to test the delay caused by our attack on each controller. To test the delay on the controller, we would simply have h1 ping h2. A more complicated controller (e.g. one that does more than simply add the mac address as a flow) would see its performance decrease more significantly than in our example test cases.
 
  The first attack we attempted was to see if a single switch could overload the controller by rapidly pushing information. We utilized the basic Echo Request (the switch keep-a-live message) as the OpenFlow message to send to the controller to establish a baseline for testing. Bigger packets, particularly ones that require some sort of computation by the controller application, would increase the performance effect on the controller. We started by sending a Echo Request as quickly as possible to the controller without caring about the response. This attack had little effect of the controller and simply resulted in periodic "TCP Previous Segment Lost" messages as a response from the controller. We believe that the issue with this method was we were never reading in the Echo Replies sent from the controller and the controller was simply ignoring our messages because its send buffer was full. We then modified this attack to send a single Echo Request, wait for an Echo Reply and then instantly send another. This attack caused the controller to continually send Echo Replies but at a controller specified rate - we had to wait for a reply before sending another request. As a result, this attack also had little effect on the controller.
 
-\begin{figure}
+\begin{figure}[ht]
   \includegraphics[width=\linewidth]{DOSAttack.png}
   \caption{Results of DOS Attacks on the Controller \cite{protocol}}
   \label{fig:DOSattacks}
 \end{figure}
 
-\subsubsection{DDoS on the Controller}
-   To increase the effect of our attack, we created multiple rogue switches and had each utilize the same attack on the controller. Our testing machine was actually the limiting factor in the number of rogue switches we could spawn, but we utilized 400 switches as the max for comparison purposes.  We further optimized our attack by splitting our TCP socket into a distinct listener and sender. We threaded our application so the two actions were not dependent on each other and achieved significantly better results. With out optimized version, we were able to push packets fast enough to cause TCP Window Zero Errors and the controller to have to drop packets.  These results (shown in Figure 2) show that even a single switch can severally effect the performance of a controller and therefore degrade an entire network. 
+\subsection{DDoS on the Controller}
+   To increase the effect of our attack, we created multiple rogue switches and had each perform the same attack on the controller. Our testing machine was actually the limiting factor in the number of rogue switches we could spawn, but we utilized 400 switches as the max for comparison purposes.  We further optimized our attack by splitting our TCP socket into a distinct listener and sender. We threaded our application so the two actions were not dependent on each other and achieved significantly better results. With out optimized version, we were able to push packets fast enough to cause TCP Window Zero Errors and the controller to have to drop packets.  These results (shown in Figure \ref{fig:DOSattacks}) show that even a single switch can severally effect the performance of a controller and therefore degrade an entire network. 
 
-\subsection{Other Possible Attacks}
-
-Though we have not implemented the attacks in this section, we believe that our rogue switch utility demonstrates that they are very real threats. 
-
-\subsubsection{Cloning, dropping, or diverting traffic}
+\subsection{Cloning, dropping, or diverting traffic}
 
 In general, a rogue switch can mishandle packets it receives from the controller or other switches in various ways. Most basically of all, the rogue switch could simply drop packets sent to it, thus creating a service interruption. However, a controller would probably notice this quickly -- it would appear as though the switch had failed, and automated recovery mechanisms would be initiated. More interestingly, a rogue switch could ensure that traffic would be routed through an adversary's middlebox, or could clone traffic and send the cloned stream to the adversary. This would be much more difficult for the controller to detect, unless it caused considerable slowdown. This attack could conceivably be used for purposes such as the NSA's MUSCULAR program, which intercepts traffic as it flows between private data centers \cite{muscular}. 
 
-\subsubsection{Reporting falsehoods to the controller}
+
+\subsection{Selective rule modification}
+A rogue switch may behave like a normal switch, leading the controller to believe that it is behaving correctly, but then selectively modifying existing rules, ignoring new Flow Mod requests, or adding new ones. For example, dropping packets will be noticed quickly; but a switch could allow packets to pass through that ought to have been dropped. Because of the difficulty of querying flow table state, the controller may not become aware of this. A compromised switch could thus operate in ``stealth mode" and the inconsistent flow table might only be noticed once the switch allows an attacker to pass through, for example.
+
+The switch could also insert its own modifications; for example, it could add VLAN modification rules in order to have malicious traffic be erroneously treated by other network elements. If normal only packets with a certain VLAN tag are allowed to access a sensitive resource, the switch could ensure that the attacker's traffic appears to have valid permissions.
+
+\subsection{Reporting falsehoods to the controller}
 
 A rogue switch can easily send the controller false reports, in order to give the controller an incorrect view of the network state. For example, advertising false host attachments is easy; a rogue switch can send the controller Packet-In events with packets which falsely claim to have a particular MAC address as the sender. This could lead the controller to believe that the compromised switch should receive traffic intended for the host. While this would soon lead to packet loss and a noticeable disruption, it would nevertheless allow a switch to eavesdrop when it would not normally be in a position to do so.
 
@@ -33,13 +32,7 @@ Another potential attack is falsifying measurement reports. When a rogue switch 
 
 The rogue switch could also use the controller as a "relay point" and try to send it Packet In events designed to produce Flow Mods which would then overload other switches' TCAMs or otherwise DoS them. For example, in a MAC learning switch, advertising many new MAC addresses could overload not only the controller, but also other switches, which would have relevant rules installed for the bogus MAC addresses. Thus, instead of attacking each network element individually, the controller gives the attacker an easy, cheap way to concurrently many switches at once. 
 
-
-\subsubsection{Selective rule modification}
-A rogue switch may behave like a normal switch, leading the controller to believe that it is behaving correctly, but then selectively modifying existing rules, ignoring new Flow Mod requests, or adding new ones. For example, dropping packets will be noticed quickly; but a switch could allow packets to pass through that ought to have been dropped. Because of the difficulty of querying flow table state, the controller may not become aware of this. A compromised switch could thus operate in ``stealth mode" and the inconsistent flow table might only be noticed once the switch allows an attacker to pass through, for example.
-
-The switch could also insert its own modifications; for example, it could add VLAN modification rules in order to have malicious traffic be erroneously treated by other network elements. If normal only packets with a certain VLAN tag are allowed to access a sensitive resource, the switch could ensure that the attacker's traffic appears to have valid permissions.
-
-\subsubsection{Learning about the controller}
+\subsection{Learning about the controller}
 An adversary could have many reasons to wish to learn more about the controller and the controller's state. By colluding with a rogue switch, the adversary can gain valuable insight into the controller's status.
 
 One possible attack would be for the rogue switch to send Packet In events to the controller and observe the controller's response, in order to determine what kind of applications might be running on the controller. This information could be extremely useful for an attacker who wishes to more narrowly target future attacks.

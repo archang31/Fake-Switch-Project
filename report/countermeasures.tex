@@ -2,7 +2,7 @@ In this section we describe practices which we believe are most important to def
 
 \subsection{Security as a Priority}
 
-OpenFlow v1.3.0 and all prior versions list SSL/TLS as an "optional" feature, noting that the switch "may" communicate with the controller using TLS. Though previous security analyses have consistently recommended SSL/TLS as a solution to most vulnerabilities, neither controller developers nor hardware manufacturers have implemented SSL/TLS despite these glaring problems. This is in many ways a chicken-and-egg problem. Manufacturers can argue that there is no demand for extra security features; meanwhile, any potential OpenFlow users who need security won't bother with the platform.
+OpenFlow v1.3.0 and all prior versions list SSL/TLS as an "optional" feature, noting that the switch "may" communicate with the controller using TLS \cite{ietf}. Though previous security analyses have consistently recommended SSL/TLS as a solution to most vulnerabilities, neither controller developers nor hardware manufacturers have implemented SSL/TLS despite these glaring problems. This is in many ways a chicken-and-egg problem. Manufacturers can argue that there is no demand for extra security features; meanwhile, any potential OpenFlow users who need security won't bother with the platform.
 
 Therefore, we recommend that future versions of the specification must include security as a top-level priority, with features such as SSL declared as mandatory, in order for us to have any hope of being able to secure OpenFlow systems. 
 
